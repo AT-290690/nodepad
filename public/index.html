@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, height=device-height"
+    />
+    <meta
+      name="description"
+      content="Try out simple JavaScript programs"
+    />
+    <title>Codepad.js</title>
+ 
+    <link href="./style.css" rel="stylesheet" />
+    <link rel="icon" type="image/svg" href="./favicon.svg" />
+  </head>
+  <body>
+
+    <div class="header">
+      <input id="console" aria-label="Command Console" class="info_line" autocomplete="off" spellcheck="false"></input>
+      <div class="header-buttons">
+      <button id="formatter" aria-label="Format Code" title="format code" class="header-button svgIcon">
+        <svg width="18" height="18" viewBox="0 0 26 23"  xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 1.90735e-06L16.4779 9.52215L26 11L16.4779 12.4779L15 22L13.5221 12.4779L4 11L13.5221 9.52215L15 1.90735e-06Z" />
+          <path d="M5 13L5.67175 17.3282L10 18L5.67175 18.6718L5 23L4.32825 18.6718L0 18L4.32825 17.3282L5 13Z" />
+          <path d="M8 1L8.40305 3.59695L11 4L8.40305 4.40305L8 7L7.59695 4.40305L5 4L7.59695 3.59695L8 1Z" />
+          </svg>
+      </button>
+      <button id="gist-link" aria-label="Make Gist Link" title="gist link" class="header-button svgIcon" >
+        <svg  xmlns="http://www.w3.org/2000/svg"
+        width="18" height="18"
+       viewBox="0 0 118.2 116.32">
+       <rect class="a" x="34.72" y="35.83" width="46.99"
+         height="45.48" />
+       <rect class="a" x="53.72" y="-22.24" width="10.13"
+         height="86.65"
+         transform="translate(37.7 79.87) rotate(-90)" />
+       <rect class="a" x="77.47" width="9.57" height="24.51"
+         transform="translate(164.5 24.51) rotate(180)" />
+       <rect class="a" x="54.79" width="9.57" height="24.51"
+         transform="translate(119.15 24.51) rotate(180)" />
+       <rect class="a" x="32.12" width="9.57" height="24.51"
+         transform="translate(73.81 24.51) rotate(180)" />
+       <rect class="a" x="15.57" y="18.46" width="10.58"
+         height="79.04"
+         transform="translate(41.72 115.97) rotate(180)" />
+       <rect class="a" x="7.47" y="22.79" width="9.57"
+         height="24.51"
+         transform="translate(47.3 22.79) rotate(90)" />
+       <rect class="a" x="7.47" y="45.46" width="9.57"
+         height="24.51"
+         transform="translate(69.98 45.46) rotate(90)" />
+       <rect class="a" x="7.47" y="68.14" width="9.57"
+         height="24.51"
+         transform="translate(92.65 68.14) rotate(90)" />
+       <rect class="a" x="53.15" y="52.42" width="10.9"
+         height="86.4"
+         transform="translate(154.22 37.03) rotate(90)" />
+       <rect class="a" x="31.49" y="91.81" width="9.57"
+         height="24.51" />
+       <rect class="a" x="54.16" y="91.81" width="9.57"
+         height="24.51" />
+       <rect class="a" x="76.83" y="91.81" width="9.57"
+         height="24.51" />
+       <rect class="a" x="92.05" y="18.51" width="9.87"
+         height="79.04" />
+       <rect class="a" x="101.16" y="68.71" width="9.57"
+         height="24.51"
+         transform="translate(24.98 186.91) rotate(-90)" />
+       <rect class="a" x="101.16" y="46.04" width="9.57"
+         height="24.51"
+         transform="translate(47.65 164.24) rotate(-90)" />
+       <rect class="a" x="101.16" y="23.37" width="9.57"
+         height="24.51"
+         transform="translate(70.32 141.56) rotate(-90)" />
+     </svg>      
+    </button>
+    <button id="key"  aria-label="Stashed Code" title="stash" class="header-button svgIcon">
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="18" height="18" viewBox="0 0 30 70" style="overflow: hidden; background: transparent;"><defs></defs><g id="two-0" transform="matrix(1 0 0 1 0 0)" opacity="1"><path transform="matrix(1 0 0 1 5 15)" id="two-1" d="M -5 -15 L 5 -15 L 5 15 L -5 15 Z "  stroke="undefined" stroke-width="1" stroke-opacity="1" fill-opacity="1" visibility="visible" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"></path><path transform="matrix(1 0 0 1 30 22.5)" id="two-2" d="M -5 -12.5 L 5 -12.5 L 5 12.5 L -5 12.5 Z "  stroke="undefined" stroke-width="1" stroke-opacity="1" fill-opacity="1" visibility="visible" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"></path><path transform="matrix(1 0 0 1 12.5 5)" id="two-3" d="M -12.5 -5 L 12.5 -5 L 12.5 5 L -12.5 5 Z "  stroke="undefined" stroke-width="1" stroke-opacity="1" fill-opacity="1" visibility="visible" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"></path><path transform="matrix(1 0 0 1 15 30)" id="two-4" d="M -15 -5 L 15 -5 L 15 5 L -15 5 Z "  stroke="undefined" stroke-width="1" stroke-opacity="1" fill-opacity="1" visibility="visible" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"></path><path transform="matrix(1 0 0 1 15 45)" id="two-5" d="M -5 -20 L 5 -20 L 5 20 L -5 20 Z "  stroke="undefined" stroke-width="1" stroke-opacity="1" fill-opacity="1" visibility="visible" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"></path><path transform="matrix(1 0 0 1 19 51)" id="two-6" d="M -9 -4 L 9 -4 L 9 4 L -9 4 Z "  stroke="undefined" stroke-width="1" stroke-opacity="1" fill-opacity="1" visibility="visible" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"></path><path transform="matrix(1 0 0 1 21 66)" id="two-7" d="M -11 -4 L 11 -4 L 11 4 L -11 4 Z "  stroke="undefined" stroke-width="1" stroke-opacity="1" fill-opacity="1" visibility="visible" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"></path></g>
+      </svg>
+      </button>
+     <!-- <button  id="debug-button"  aria-label="Lint Button" title="lint" class="header-button svgIcon">
+      <svg fill="none" stroke-width="4" width="18" height="18" viewBox="0 0 37 39" xmlns="http://www.w3.org/2000/svg">
+        <path d="M29 21H37"></path>
+        <path d="M0 21H7"></path>
+        <path d="M28.5496 13.9169L34.4504 9.49935"></path>
+        <path d="M14.1996 9.4231L8 1"></path>
+        <path d="M22.2938 9.6038L27.9057 0.819306"></path>
+        <path d="M7.97632 13.7724L2.20029 9.83392"></path>
+        <path d="M7.97501 27L2.5 36"></path>
+        <path d="M27.6426 28.3467L34.1216 35.6533"></path>
+        <path d="M30 29V13L23 7.50003H13L6.5 13V29L18 37L30 29Z"></path>
+        </svg>
+     </button> -->
+</div>
+    </div>
+    <img src="./assets/images/error.svg" class="droneIcon" id="error-drone-icon" />
+    <img src="./assets/images/sparckle.svg" class="droneIcon" id="formatter-drone-icon" />
+    <img src="./assets/images/key-drone-icon.svg" class="droneIcon" id="key-drone-icon" />
+    <img src="./assets/images/x-icon.svg" class="droneIcon" id="x-drone-icon" />
+    <svg
+      id="drone"
+      class="float"
+      xmlns="http://www.w3.org/2000/svg"
+      version="1.1"
+      width="35"
+      height="50"
+      style="overflow: hidden; background: transparent; border: none"
+    >
+      <defs></defs>
+      <g id="two-299" transform="matrix(1 0 0 1 0 0)" opacity="1">
+        <g id="two-308" transform="matrix(0.3 0 0 0.3 5 5)" opacity="1">
+          <path
+            transform="matrix(1 0 0 1 58 6)"
+            id="two-300"
+            d="M -6 -6 L 6 -6 L 6 6 L -6 6 Z "
+            fill="var(--drone2)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+          <path
+            transform="matrix(1 0 0 1 45 30)"
+            id="two-301"
+            d="M -25 -10 L 25 -10 L 25 10 L -25 10 Z "
+            fill="var(--drone3)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+          <path
+            transform="matrix(1 0 0 1 35 40)"
+            id="two-302"
+            d="M -25 -10 L 25 -10 L 25 10 L -25 10 Z "
+            fill="var(--drone3)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+          <path
+            transform="matrix(1 0 0 1 35 57.5)"
+            id="two-303"
+            d="M -25 -7.5 L 25 -7.5 L 25 7.5 L -25 7.5 Z "
+            fill="var(--drone2)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+          <path
+            transform="matrix(1 0 0 1 50 60)"
+            id="two-304"
+            d="M -20 -20 L 20 -20 L 20 20 L -20 20 Z "
+            fill="var(--drone2)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+          <path
+            transform="matrix(1 0 0 1 42.5 97.5)"
+            id="two-305"
+            d="M -12.5 -17.5 L 12.5 -17.5 L 12.5 17.5 L -12.5 17.5 Z "
+            fill="var(--drone1)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+          <path
+            transform="matrix(1 0 0 1 13 80)"
+            id="two-306"
+            d="M -5 -5 L 5 -5 L 5 5 L -5 5 Z "
+            fill="var(--drone2)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+          <path
+            transform="matrix(1 0 0 1 51.5 61.5)"
+            id="two-307"
+            d="M -6.5 -6.5 L 6.5 -6.5 L 6.5 6.5 L -6.5 6.5 Z "
+            fill="var(--drone4)"
+            stroke="undefined"
+            stroke-width="1"
+            stroke-opacity="1"
+            fill-opacity="1"
+            visibility="visible"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="4"
+          ></path>
+        </g>
+      </g>
+    </svg>
+    <div id="editor-container"></div>
+    <div id="application-container"></div>
+    <div id="popup-container"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js" integrity="sha512-5YZxUisfaneUbwv58nPp10qwt6DefHuJ+iAfvPoABZAYwLg4WGJHITaLpyyxJdrljfc0ggUoWc87Z0lfoDS84Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.4/beautify.min.js"></script>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

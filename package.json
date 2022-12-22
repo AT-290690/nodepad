@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
