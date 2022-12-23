@@ -10,7 +10,6 @@ import { editor } from '../main.js'
 import {
   run,
   printErrors,
-  playSound,
   State,
   droneIntel,
   exe,
@@ -28,7 +27,6 @@ export const execute = async (CONSOLE) => {
       State.source = editor.getValue()
       editor.setValue('')
       consoleElement.value = ''
-      playSound(5)
       droneIntel(xIcon)
       break
     case 'RUN':
@@ -49,7 +47,6 @@ export const execute = async (CONSOLE) => {
   
 */`)
       droneIntel(keyIcon)
-      playSound(5)
       break
     case 'LICENSE':
       State.source = editor.getValue()
@@ -77,7 +74,6 @@ export const execute = async (CONSOLE) => {
   SOFTWARE.
   */`)
       droneIntel(keyIcon)
-      playSound(5)
 
       break
     case '_LOG':
@@ -113,10 +109,8 @@ export const execute = async (CONSOLE) => {
     //         doc: editor.getValue(),
     //       })
     //       droneIntel(xIcon)
-    //       playSound(5)
     //     } else if (inp === 'ON' && !State.settings.lint) {
     //       execute({ value: 'UNVEIL' }).then(() => {
-    //         playSound(1)
     //         droneIntel(formatterIcon)
     //         debug()
     //       })
@@ -126,7 +120,6 @@ export const execute = async (CONSOLE) => {
     //   }
     //   break
     case 'DIR':
-      console.log(API)
       fetch(API + 'dir')
         .then((res) => res.text())
         .then((data) => {
@@ -138,8 +131,7 @@ export const execute = async (CONSOLE) => {
       fetch(`${API}ls?dir=${State.dir}`)
         .then((d) => d.json())
         .then((files) => {
-          editor.setValue(files.join('\n'))
-          playSound(3)
+          editor.setValue(`${State.dir}\n${files.join('\n')}`)
           consoleElement.value = ''
           droneIntel(keyIcon)
           State.lastSelectedFile = null
@@ -152,7 +144,6 @@ export const execute = async (CONSOLE) => {
           key: 'Escape',
         })
       )
-
       break
     case 'LOAD':
     case '.':
@@ -167,7 +158,6 @@ export const execute = async (CONSOLE) => {
           })
           .then(() => {
             State.lastSelectedFile = file
-            playSound(3)
             droneIntel(keyIcon)
             consoleElement.value = ''
           })
@@ -186,7 +176,6 @@ export const execute = async (CONSOLE) => {
         })
           .then(() => {
             // localStorage.setItem(file, editor.getValue())
-            playSound(6)
             droneIntel(keyIcon)
           })
           .finally(() => {
@@ -198,38 +187,10 @@ export const execute = async (CONSOLE) => {
       State.source = editor.getValue()
       localStorage.removeItem(PARAMS[0] ? 'stash-' + PARAMS[0] : 'stash-main')
       consoleElement.value = ''
-      playSound(5)
       droneIntel(xIcon)
-      break
-    case 'DROP':
-      State.source = editor.getValue()
-      for (let i = 0; i < localStorage.length; ++i) {
-        const key = localStorage.key(i)
-        if (key.includes('stash-')) localStorage.removeItem(key)
-      }
-      consoleElement.value = ''
-      editor.setValue('')
-      droneIntel(xIcon)
-      playSound(5)
-      break
-    case 'SOUND':
-      switch (PARAMS[0]?.toUpperCase()) {
-        case 'ON':
-          State.mute = 0
-          localStorage.setItem('mute', 0)
-          droneIntel(formatterIcon)
-          playSound(5)
-          break
-        case 'OFF':
-          State.mute = 1
-          localStorage.setItem('mute', 1)
-          droneIntel(xIcon)
-          break
-      }
       break
     case 'PRETTY':
       editor.setValue(js_beautify(editor.getValue(), State.settings.beautify))
-      playSound(4)
       droneIntel(formatterIcon)
       break
     case 'INPUT':
@@ -242,7 +203,6 @@ export const execute = async (CONSOLE) => {
       break
     case 'BACK':
       editor.setValue(State.source)
-      playSound(5)
       droneIntel(keyIcon)
       consoleElement.value = ''
       break
@@ -263,15 +223,11 @@ export const execute = async (CONSOLE) => {
  SAVE: save in starage
  LOAD: load from storage
  DELETE: remove from storage
- DROP: drop all storage
  LIST: list stash content
- SOUND ON:  enable sounds
- SOUND OFF: dissable sounds
  PRETTY: format code
  LICENSE: read license info
  ----------------------------
 */`)
-      playSound(4)
       droneIntel(keyIcon)
       consoleElement.value = ''
       break
@@ -279,7 +235,6 @@ export const execute = async (CONSOLE) => {
       if (CMD.trim()) printErrors(CMD + ' does not exist!')
       else consoleElement.value = ''
       droneIntel(errorIcon)
-      playSound(0)
       break
   }
 }

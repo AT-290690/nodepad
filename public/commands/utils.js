@@ -15,7 +15,7 @@ export const print = function (...values) {
   )
   return values
 }
-export const API = 'http://localhost:8181/'
+export const API = location.protocol + '//' + location.host + '/'
 
 export const createCanvas = () => {
   applicationContainer.innerHTML = ''
@@ -42,12 +42,10 @@ export const correctFilePath = (filename) => {
   return '/' + filename.split('/').filter(Boolean).join('/')
 }
 export const State = {
-  sounds: [],
   activeWindow: null,
   isErrored: true,
   input: '',
   cache: '',
-  mute: localStorage.getItem('mute') ? +localStorage.getItem('mute') : 1,
   settings: {
     lint: false,
     beautify: {
@@ -77,32 +75,12 @@ export const droneIntel = (icon) => {
   setTimeout(() => (icon.style.visibility = 'hidden'), 500)
 }
 
-export const playSound = (index) => {
-  if (!State.mute) {
-    if (!State.sounds.length) {
-      for (let i = 0; i < 7; i++) {
-        const sound = new Audio(`./assets/sounds/sound${i}.wav`)
-        sound.volume = sound.volume * 0.1
-        State.sounds.push(sound)
-      }
-    }
-    State.sounds.forEach((sound, i) => {
-      if (i === index) sound.currentTime = 0
-      else {
-        sound.pause()
-        sound.currentTime = 0
-      }
-    })
-    State.sounds[index].play()
-  }
-}
 const AsyncFunction = async function () {}.constructor
 export const exe = async (source, params) => {
   try {
     const result = await new AsyncFunction(`${State.input};${source}`)()
     droneButton.classList.remove('shake')
     droneIntel(formatterIcon)
-    playSound(6)
     return result
   } catch (err) {
     consoleElement.classList.remove('info_line')
@@ -111,7 +89,6 @@ export const exe = async (source, params) => {
     droneButton.classList.remove('shake')
     droneButton.classList.add('shake')
     droneIntel(errorIcon)
-    playSound(0)
   }
 }
 
@@ -163,6 +140,9 @@ globalThis._print = (disable = 0) => {
     return msg
   }
 }
+globalThis._read = async (file) =>
+  await (await fetch(`${API}/portals/${State.dir}/${file}`)).text()
+
 globalThis._canvas = (w, h) => {
   const canvas = createCanvas()
   if (!(w ?? h)) {

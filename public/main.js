@@ -1,6 +1,6 @@
 import { CodeMirror } from './libs/editor/editor.bundle.js'
 import { execute } from './commands/exec.js'
-import { API, playSound, run, State } from './commands/utils.js'
+import { run, State } from './commands/utils.js'
 export const consoleElement = document.getElementById('console')
 export const editorContainer = document.getElementById('editor-container')
 export const mainContainer = document.getElementById('main-container')
@@ -30,7 +30,6 @@ export const consoleEditor = CodeMirror(popupContainer)
 droneButton.addEventListener('click', () => execute({ value: '_LOG' }))
 appButton.addEventListener('click', () => {
   execute({ value: 'INPUT ' + consoleElement.value })
-  playSound(1)
 })
 formatterButton.addEventListener('click', () => {
   execute({ value: 'PRETTY' })
