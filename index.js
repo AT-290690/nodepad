@@ -1,4 +1,11 @@
-import { writeFile, readFile, access, mkdir, readdir } from 'fs/promises'
+import {
+  writeFile,
+  readFile,
+  access,
+  mkdir,
+  readdir,
+  unlink,
+} from 'fs/promises'
 import { constants, mkdirSync, rm } from 'fs'
 import http from 'http'
 import path from 'path'
@@ -126,9 +133,15 @@ router['POST']['/exec'] = async (req, res, { query }) => {
 }
 router['POST']['/disconnect'] = async (req, res, { query }) => {
   const filepath = `${directoryName}/portals/${query.dir}`
-  access(filepath, constants.F_OK).then(() =>
-    rm(filepath, { recursive: true }, () => {})
-  )
+  access(filepath, constants.F_OK)
+    .then(() => rm(filepath, { recursive: true }, () => {}))
+    .catch((err) => console.log(err))
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end()
+}
+router['DELETE']['/del'] = async (req, res, { query }) => {
+  const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
+  access(filepath, constants.F_OK).then(() => unlink(filepath))
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end()
 }
@@ -174,7 +187,6 @@ const server = http.createServer(async (req, res) => {
   const URL = url.parse(req.url, true)
   const { query, pathname } = URL
   const params = { query, pathname }
-  // dir
   match(req.method, pathname, req, res, params) ??
     match('GET', '*', req, res, params)
 })

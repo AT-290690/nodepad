@@ -170,7 +170,7 @@ export const execute = async (CONSOLE) => {
       break
     case 'DELETE':
       fetch(
-        `${API}save?dir=${State.dir}&filename=${
+        `${API}del?dir=${State.dir}&filename=${
           PARAMS[0] ?? State.lastSelectedFile
         }`,
         {
