@@ -51,7 +51,8 @@ document.addEventListener('keydown', (e) => {
     consoleElement.value = ''
     // const value = js_beautify(editor.getValue(), State.settings.beautify)
     // editor.setValue(value)
-    editor.getSelection() ? execute({ value: '_LOG' }) : run()
+    // editor.getSelection() ? execute({ value: '_LOG' }) : run()
+    execute({ value: 'SAVE' })
   } else if (e.key === 'Enter') {
     if (activeElement === consoleElement) {
       execute(consoleElement)

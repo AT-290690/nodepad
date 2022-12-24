@@ -84,35 +84,17 @@ export const execute = async (CONSOLE) => {
       }
 
       break
-    // case 'LINT':
-    //   {
-    //     const inp = PARAMS[0]?.toUpperCase()
-    //     if (inp === 'OFF' && State.settings.lint) {
-    //       State.settings.lint = false
-    //       editor.switchInstance({
-    //         lint: false,
-    //         doc: editor.getValue(),
-    //       })
-    //       droneIntel(xIcon)
-    //     } else if (inp === 'ON' && !State.settings.lint) {
-    //       execute({ value: 'UNVEIL' }).then(() => {
-    //         droneIntel(formatterIcon)
-    //         debug()
-    //       })
-    //     } else if (!inp) consoleElement.value = 'Provide a lint option on/off'
-    //     else
-    //       consoleElement.value = 'LINT ' + (State.settings.lint ? 'OFF' : 'ON')
-    //   }
-    //   break
     case 'DIR':
+    case '//':
       fetch(API + 'dir')
         .then((res) => res.text())
         .then((data) => {
+          consoleElement.value = ''
           State.dir = data
         })
       break
     case 'LIST':
-    case '/':
+    case '..':
       fetch(`${API}ls?dir=${State.dir}`)
         .then((d) => d.json())
         .then((files) => {
@@ -134,7 +116,7 @@ export const execute = async (CONSOLE) => {
     case '.':
       {
         State.source = editor.getValue()
-        const file = PARAMS[0]
+        const file = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
         fetch(`${API}portals/${State.dir}/${file}`)
           .then((res) => res.text())
           .then((data) => {
@@ -149,10 +131,10 @@ export const execute = async (CONSOLE) => {
       }
       break
     case 'SAVE':
-    case '>':
+    case '++':
       {
         consoleElement.value = ''
-        const filename = PARAMS[0] ? PARAMS[0] : State.lastSelectedFile
+        const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
         const source = editor.getValue()
         fetch(`${API}save?dir=${State.dir}&filename=${filename}`, {
           method: 'POST',
@@ -169,6 +151,7 @@ export const execute = async (CONSOLE) => {
       }
       break
     case 'DELETE':
+    case '--':
       fetch(
         `${API}del?dir=${State.dir}&filename=${
           PARAMS[0] ?? State.lastSelectedFile
@@ -191,11 +174,17 @@ export const execute = async (CONSOLE) => {
       droneIntel(formatterIcon)
       break
     case 'EXEC':
-      fetch(`${API}exec?dir=${State.dir}&filename=${PARAMS[0]}`, {
-        method: 'POST',
-        contentType: 'application/json',
-        // body: editor.getValue(),
-      })
+    case '>>':
+      fetch(
+        `${API}exec?dir=${State.dir}&filename=${
+          PARAMS[0] ?? State.lastSelectedFile
+        }`,
+        {
+          method: 'POST',
+          contentType: 'application/json',
+          // body: editor.getValue(),
+        }
+      )
         // .then((data) => data.text())
         .then((data) => {
           droneIntel(keyIcon)

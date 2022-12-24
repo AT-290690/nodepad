@@ -98,14 +98,23 @@ router['GET']['/dir'] = async (req, res, { query }) => {
   res.end(uuid)
 }
 router['GET']['/ls'] = async (req, res, { query }) => {
-  const dir = directoryName + '/portals/' + query.dir
-  res.writeHead(200, { 'Content-Type': 'application/json' })
-  res.end(JSON.stringify(await readdir(dir)))
+  const dir = directoryName + '/portals/' + query.dir + '/'
+  await access(dir, constants.F_OK)
+    .then(async () => {
+      const list = await readdir(dir)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(list))
+    })
+    .catch((err) => {
+      res.writeHead(404, { 'Content-Type': 'text/html' })
+      res.end('404: Folder not found')
+    })
 }
 router['POST']['/save'] = async (req, res, { query }) => {
   const data = JSON.parse(await getReqData(req))
-  const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
-  await access(`${directoryName}/portals/${query.dir}/`, constants.F_OK)
+  const dir = `${directoryName}/portals/${query.dir}/`
+  const filepath = `${dir}${query.filename}`
+  await access(dir, constants.F_OK)
     .then(async () => {
       await access(filepath, constants.F_OK)
         .then(async () => {
@@ -123,8 +132,9 @@ router['POST']['/save'] = async (req, res, { query }) => {
   res.end()
 }
 router['POST']['/exec'] = async (req, res, { query }) => {
-  const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
-  runScript(filepath, [`${directoryName}/portals/${query.dir}/`], (err) => {
+  const dir = `${directoryName}/portals/${query.dir}/`
+  const filepath = `${dir}${query.filename}`
+  runScript(filepath, [dir], (err) => {
     if (err) return console.log(err)
     console.log('finished running ' + filepath)
   })
@@ -180,7 +190,10 @@ router['GET']['*'] = async (req, res, { query, pathname }) => {
 
 const match = (method, pathname, req, res, params) => {
   const route = router[method][pathname]
-  if (route) route(req, res, params)
+  if (route) {
+    route(req, res, params)
+    return true
+  }
 }
 
 const server = http.createServer(async (req, res) => {

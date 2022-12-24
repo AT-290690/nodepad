@@ -15,7 +15,7 @@
   --error: #e93838;
   --warning: #ffed2b;
   --success: #6de46d;
-  --icons: #cae5f2;
+  --icons: #6b84b0;
   --progress: #42c6ff;
   --def: #2ac3de;
   --dec: #42c6ff;
@@ -39,11 +39,11 @@
   --meta: #f7768e;
   --regexp: #f7768e;
   --font-family: 'Fantastic';
-  --drone1: #833783;
-  --drone2: orchid;
-  --drone3: pink;
-  --drone4: #2a2c2e;
-  --hover: #ec8bd6;
+  --drone1: #383a3d;
+  --drone2: #3495e9;
+  --drone3: #7dcfff;
+  --drone4: #383a3d;
+  --hover: #2eff85;
 }
 text,
 input,
