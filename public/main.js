@@ -86,7 +86,7 @@ window.addEventListener(
 const unloadSupportHandler = () => {
   if (unloadSupportHandler._hasUnloaded) return
   unloadSupportHandler._hasUnloaded = true
-  navigator.sendBeacon(`${API}/realm0/disconnect?dir=${State.dir}`)
+  navigator.sendBeacon(`${API}disconnect?dir=${State.dir}`)
 }
 window.addEventListener('pagehide', unloadSupportHandler)
 window.addEventListener('unload', unloadSupportHandler)

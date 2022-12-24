@@ -124,13 +124,12 @@ const server = http.createServer(async (req, res) => {
     res.end()
     return
   }
-  if (pathname === '/disconnect' && req.method === 'GET') {
+  if (pathname === '/disconnect' && req.method === 'POST') {
     const filepath = `${directoryName}/portals/${query.dir}`
-    access(
-      filepath,
-      (isMissing) => !isMissing && rm(filepath, { recursive: true }, callback)
+    access(filepath, constants.F_OK).then(() =>
+      rm(filepath, { recursive: true }, () => {})
     )
-    res.writeHead(200, { 'Content-Type': 'application/text' })
+    res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end()
     return
   }
