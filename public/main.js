@@ -1,13 +1,13 @@
 import { CodeMirror } from './libs/editor/editor.bundle.js'
 import { execute } from './commands/exec.js'
-import { run, State } from './commands/utils.js'
+import { API, run, State } from './commands/utils.js'
 export const consoleElement = document.getElementById('console')
 export const editorContainer = document.getElementById('editor-container')
 export const mainContainer = document.getElementById('main-container')
 export const headerContainer = document.getElementById('header')
 export const focusButton = document.getElementById('focus-button')
 export const keyButton = document.getElementById('key')
-export const appButton = document.getElementById('gist-link')
+export const appButton = document.getElementById('app-settings')
 export const droneButton = document.getElementById('drone')
 export const errorIcon = document.getElementById('error-drone-icon')
 export const formatterIcon = document.getElementById('formatter-drone-icon')
@@ -29,7 +29,8 @@ export const consoleEditor = CodeMirror(popupContainer)
 
 droneButton.addEventListener('click', () => execute({ value: '_LOG' }))
 appButton.addEventListener('click', () => {
-  execute({ value: 'INPUT ' + consoleElement.value })
+  execute({ value: 'EXEC' })
+  // execute({ value: 'INPUT ' + consoleElement.value })
 })
 formatterButton.addEventListener('click', () => {
   execute({ value: 'PRETTY' })
@@ -77,6 +78,18 @@ window.addEventListener('resize', () => {
     applicationContainer.style.display = 'none'
   }
 })
+window.addEventListener(
+  'beforeunload',
+  (e) =>
+    (e.returnValue = `Before leaving make sure you save your work (if it's worth)`)
+)
+const unloadSupportHandler = () => {
+  if (unloadSupportHandler._hasUnloaded) return
+  unloadSupportHandler._hasUnloaded = true
+  navigator.sendBeacon(`${API}/realm0/disconnect?dir=${State.dir}`)
+}
+window.addEventListener('pagehide', unloadSupportHandler)
+window.addEventListener('unload', unloadSupportHandler)
 const bounds = document.body.getBoundingClientRect()
 editor.setSize(bounds.width - 10, bounds.height - 60)
 consoleElement.setAttribute('placeholder', 'enter HELP')

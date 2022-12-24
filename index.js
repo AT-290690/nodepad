@@ -4,6 +4,24 @@ import http from 'http'
 import path from 'path'
 import url from 'url'
 import { randomUUID } from 'crypto'
+import { fork } from 'child_process'
+
+const runScript = (scriptPath, args, callback) => {
+  let invoked = false
+
+  let process = fork(scriptPath, args)
+  process.on('error', function (err) {
+    if (invoked) return
+    invoked = true
+    callback(err)
+  })
+  process.on('exit', function (code) {
+    if (invoked) return
+    invoked = true
+    var err = code === 0 ? null : new Error('exit code ' + code)
+    callback(err)
+  })
+}
 
 const PORT = process.env.PORT || 8181
 const directoryName = './public'
@@ -78,20 +96,44 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/save' && req.method === 'POST') {
     const data = JSON.parse(await getReqData(req))
     const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
-    await access(filepath, constants.F_OK)
+    await access(`${directoryName}/portals/${query.dir}/`, constants.F_OK)
       .then(async () => {
-        const file = handleChanges(data, await readFile(filepath, 'utf-8'))
-        await writeFile(filepath, file)
+        await access(filepath, constants.F_OK)
+          .then(async () => {
+            const file = handleChanges(data, await readFile(filepath, 'utf-8'))
+            await writeFile(filepath, file)
+          })
+          .catch(async () => {
+            const file = handleChanges(data, '')
+            await writeFile(filepath, file)
+          })
       })
-      .catch(async () => {
-        const file = handleChanges(data, '')
-        await writeFile(filepath, file)
-      })
+      .catch((err) => err)
+
     res.writeHead(200, { 'Content-Type': 'application/text' })
     res.end()
     return
   }
-
+  if (pathname === '/exec' && req.method === 'POST') {
+    const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
+    runScript(filepath, [`${directoryName}/portals/${query.dir}/`], (err) => {
+      if (err) return console.log(err)
+      console.log('finished running ' + filepath)
+    })
+    res.writeHead(200, { 'Content-Type': 'application/text' })
+    res.end()
+    return
+  }
+  if (pathname === '/disconnect' && req.method === 'GET') {
+    const filepath = `${directoryName}/portals/${query.dir}`
+    access(
+      filepath,
+      (isMissing) => !isMissing && rm(filepath, { recursive: true }, callback)
+    )
+    res.writeHead(200, { 'Content-Type': 'application/text' })
+    res.end()
+    return
+  }
   const extension = path.extname(req.url).slice(1)
   const type = extension ? types[extension] : types.html
   const supportedExtension = Boolean(type)

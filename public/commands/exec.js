@@ -33,21 +33,6 @@ export const execute = async (CONSOLE) => {
       run()
       consoleElement.value = ''
       break
-    case 'ABOUT':
-      State.source = editor.getValue()
-      editor.setValue(`/* 
-  Notepad.js
-
-  ✨ Features ✨
-
-  * Write and Run simple JavaScript snippets
-  * Store your snippets in browser storage
-  * Share existing github snippets (gysts)
-  * Hide certain parts of the snippets
-  
-*/`)
-      droneIntel(keyIcon)
-      break
     case 'LICENSE':
       State.source = editor.getValue()
       editor.setValue(`/*
@@ -185,7 +170,7 @@ export const execute = async (CONSOLE) => {
       break
     case 'DELETE':
       State.source = editor.getValue()
-      localStorage.removeItem(PARAMS[0] ? 'stash-' + PARAMS[0] : 'stash-main')
+      localStorage.removeItem(PARAMS[0] ? PARAMS[0] : 'stash-main')
       consoleElement.value = ''
       droneIntel(xIcon)
       break
@@ -193,13 +178,19 @@ export const execute = async (CONSOLE) => {
       editor.setValue(js_beautify(editor.getValue(), State.settings.beautify))
       droneIntel(formatterIcon)
       break
-    case 'INPUT':
-      {
-        consoleElement.value = ''
-        State.input = editor.getValue()
-        editor.setValue(State.source)
-        droneIntel(keyIcon)
-      }
+    case 'EXEC':
+      fetch(`${API}exec?dir=${State.dir}&filename=${PARAMS[0]}`, {
+        method: 'POST',
+        contentType: 'application/json',
+        // body: editor.getValue(),
+      })
+        // .then((data) => data.text())
+        .then((data) => {
+          droneIntel(keyIcon)
+          // editor.setValue(data)
+        })
+        .catch((err) => console.log(err))
+
       break
     case 'BACK':
       editor.setValue(State.source)
