@@ -169,10 +169,22 @@ export const execute = async (CONSOLE) => {
       }
       break
     case 'DELETE':
-      State.source = editor.getValue()
-      localStorage.removeItem(PARAMS[0] ? PARAMS[0] : 'stash-main')
-      consoleElement.value = ''
-      droneIntel(xIcon)
+      fetch(
+        `${API}save?dir=${State.dir}&filename=${
+          PARAMS[0] ?? State.lastSelectedFile
+        }`,
+        {
+          method: 'DELETE',
+          contentType: 'application/json',
+        }
+      )
+        .then(() => {
+          droneIntel(xIcon)
+        })
+        .finally(() => {
+          editor.setValue('')
+          consoleElement.value = ''
+        })
       break
     case 'PRETTY':
       editor.setValue(js_beautify(editor.getValue(), State.settings.beautify))
@@ -190,6 +202,7 @@ export const execute = async (CONSOLE) => {
           // editor.setValue(data)
         })
         .catch((err) => console.log(err))
+      consoleElement.value = ''
 
       break
     case 'BACK':

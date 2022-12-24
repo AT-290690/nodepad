@@ -76,63 +76,63 @@ const handleChanges = (data = [], buffer = '') => {
   })
   return result.join('')
 }
-const server = http.createServer(async (req, res) => {
-  const URL = url.parse(req.url, true)
-  const { query, pathname } = URL
-  if (pathname === '/dir' && req.method === 'GET') {
-    const uuid = randomUUID()
-    const dir = directoryName + '/portals/' + uuid
-    mkdir(dir)
-    res.writeHead(200, { 'Content-Type': 'application/text' })
-    res.end(uuid)
-    return
-  }
-  if (pathname === '/ls' && req.method === 'GET') {
-    const dir = directoryName + '/portals/' + query.dir
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify(await readdir(dir)))
-    return
-  }
-  if (pathname === '/save' && req.method === 'POST') {
-    const data = JSON.parse(await getReqData(req))
-    const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
-    await access(`${directoryName}/portals/${query.dir}/`, constants.F_OK)
-      .then(async () => {
-        await access(filepath, constants.F_OK)
-          .then(async () => {
-            const file = handleChanges(data, await readFile(filepath, 'utf-8'))
-            await writeFile(filepath, file)
-          })
-          .catch(async () => {
-            const file = handleChanges(data, '')
-            await writeFile(filepath, file)
-          })
-      })
-      .catch((err) => err)
 
-    res.writeHead(200, { 'Content-Type': 'application/text' })
-    res.end()
-    return
-  }
-  if (pathname === '/exec' && req.method === 'POST') {
-    const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
-    runScript(filepath, [`${directoryName}/portals/${query.dir}/`], (err) => {
-      if (err) return console.log(err)
-      console.log('finished running ' + filepath)
+const router = {
+  GET: {},
+  POST: {},
+  DELETE: {},
+}
+
+router['GET']['/dir'] = async (req, res, { query }) => {
+  const uuid = randomUUID()
+  const dir = directoryName + '/portals/' + uuid
+  mkdir(dir)
+  res.writeHead(200, { 'Content-Type': 'application/text' })
+  res.end(uuid)
+}
+router['GET']['/ls'] = async (req, res, { query }) => {
+  const dir = directoryName + '/portals/' + query.dir
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end(JSON.stringify(await readdir(dir)))
+}
+router['POST']['/save'] = async (req, res, { query }) => {
+  const data = JSON.parse(await getReqData(req))
+  const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
+  await access(`${directoryName}/portals/${query.dir}/`, constants.F_OK)
+    .then(async () => {
+      await access(filepath, constants.F_OK)
+        .then(async () => {
+          const file = handleChanges(data, await readFile(filepath, 'utf-8'))
+          await writeFile(filepath, file)
+        })
+        .catch(async () => {
+          const file = handleChanges(data, '')
+          await writeFile(filepath, file)
+        })
     })
-    res.writeHead(200, { 'Content-Type': 'application/text' })
-    res.end()
-    return
-  }
-  if (pathname === '/disconnect' && req.method === 'POST') {
-    const filepath = `${directoryName}/portals/${query.dir}`
-    access(filepath, constants.F_OK).then(() =>
-      rm(filepath, { recursive: true }, () => {})
-    )
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end()
-    return
-  }
+    .catch((err) => err)
+
+  res.writeHead(200, { 'Content-Type': 'application/text' })
+  res.end()
+}
+router['POST']['/exec'] = async (req, res, { query }) => {
+  const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
+  runScript(filepath, [`${directoryName}/portals/${query.dir}/`], (err) => {
+    if (err) return console.log(err)
+    console.log('finished running ' + filepath)
+  })
+  res.writeHead(200, { 'Content-Type': 'application/text' })
+  res.end()
+}
+router['POST']['/disconnect'] = async (req, res, { query }) => {
+  const filepath = `${directoryName}/portals/${query.dir}`
+  access(filepath, constants.F_OK).then(() =>
+    rm(filepath, { recursive: true }, () => {})
+  )
+  res.writeHead(200, { 'Content-Type': 'application/json' })
+  res.end()
+}
+router['GET']['*'] = async (req, res, { query, pathname }) => {
   const extension = path.extname(req.url).slice(1)
   const type = extension ? types[extension] : types.html
   const supportedExtension = Boolean(type)
@@ -147,7 +147,6 @@ const server = http.createServer(async (req, res) => {
   if (req.url === '/') {
     fileName = 'index.html'
   }
-
   const filePath = path.join(root, fileName)
   const isPathUnderRoot = path
     .normalize(path.resolve(filePath))
@@ -164,6 +163,20 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(404, { 'Content-Type': 'text/html' })
     res.end('404: File not found')
   }
+}
+
+const match = (method, pathname, req, res, params) => {
+  const route = router[method][pathname]
+  if (route) route(req, res, params)
+}
+
+const server = http.createServer(async (req, res) => {
+  const URL = url.parse(req.url, true)
+  const { query, pathname } = URL
+  const params = { query, pathname }
+  // dir
+  match(req.method, pathname, req, res, params) ??
+    match('GET', '*', req, res, params)
 })
 
 server.listen(PORT, () => {
