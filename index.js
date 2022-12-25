@@ -38,7 +38,9 @@ class CookieJar {
   values() {
     return [...this.#cookies.values()]
   }
-  isCookieVerified([id, value], dir) {
+  isCookieVerified(cookie, dir) {
+    if (!Array.isArray(cookie)) return false
+    const [id, value] = cookie
     const current = this.get(id)
     return current && value === current.value && dir === current.id
   }
@@ -174,9 +176,9 @@ router['POST']['/save'] = async (req, res, { query, cookie }) => {
           const file = handleChanges(data, '')
           const folders = query.filename.split('/')
           folders.pop()
-          if (folders.length) {
+          if (folders.length)
             await mkdir(`${dir}/${folders.join('/')}`, { recursive: true })
-          }
+
           await writeFile(filepath, file)
         })
     })
@@ -185,18 +187,7 @@ router['POST']['/save'] = async (req, res, { query, cookie }) => {
   res.writeHead(200, { 'Content-Type': 'application/text' })
   res.end()
 }
-router['POST']['/exec'] = async (req, res, { query, cookie }) => {
-  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
-    res.writeHead(403, { 'Content-Type': 'text/html' })
-    res.end('403: Unauthorized!')
-    return
-  }
-  const dir = `${directoryName}/portals/${query.dir}/`
-  const filepath = `${dir}${query.filename}`
-  runScript(filepath, [dir], (err) => err && console.log(err))
-  res.writeHead(200, { 'Content-Type': 'application/text' })
-  res.end()
-}
+
 router['POST']['/disconnect'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })

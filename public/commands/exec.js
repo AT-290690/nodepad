@@ -196,28 +196,6 @@ export const execute = async (CONSOLE) => {
         droneIntel(formatterIcon)
       }
       break
-    case 'EXEC':
-    case '>>':
-      fetch(
-        `${API}exec?dir=${State.dir}&filename=${
-          PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
-        }`,
-        {
-          method: 'POST',
-          'Content-Type': 'application/json',
-          credentials: 'same-origin',
-          // body: editor.getValue(),
-        }
-      )
-        // .then((data) => data.text())
-        .then((data) => {
-          droneIntel(execIcon)
-          // editor.setValue(data)
-        })
-        .catch((err) => console.log(err))
-      consoleElement.value = ''
-
-      break
     case 'HELP':
       editor.setValue(`/* 
 -----------------------------
