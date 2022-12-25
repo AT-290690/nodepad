@@ -100,7 +100,6 @@ export const execute = async (CONSOLE) => {
 
       break
     case 'DIR':
-    case '//':
       fetch(API + 'dir', { credentials: 'same-origin' })
         .then((res) => res.text())
         .then((data) => {
@@ -116,9 +115,13 @@ export const execute = async (CONSOLE) => {
       })
         .then((d) => d.json())
         .then((files) => {
-          editor.setValue(
-            `//${State.dir}/${PARAMS[0] ?? ''}\n${files.join('\n')}`
+          exe(
+            `const __debug_log = _logger(); 
+            _print()('${State.dir}/${PARAMS[0] ?? ''}'); 
+            ${files.map((file) => `__debug_log("${file}")`).join('\n')}`
           )
+          consoleEditor.focus()
+
           consoleElement.value = ''
           droneIntel(keyIcon)
         })
@@ -149,7 +152,7 @@ export const execute = async (CONSOLE) => {
       }
       break
     case 'SAVE':
-    case '++':
+    case '+':
       {
         consoleElement.value = ''
         const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
@@ -168,8 +171,13 @@ export const execute = async (CONSOLE) => {
         })
       }
       break
+    case 'SHARE':
+      consoleElement.value = `${API}portals/${State.dir}/${
+        PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
+      }`
+      break
     case 'DELETE':
-    case '--':
+    case '-':
       fetch(
         `${API}del?dir=${State.dir}&filename=${
           PARAMS[0] ?? State.lastSelectedFile
@@ -188,14 +196,7 @@ export const execute = async (CONSOLE) => {
           consoleElement.value = ''
         })
       break
-    case 'PRETTY':
-      {
-        const pretty = js_beautify(editor.getValue(), State.settings.beautify)
-        editor.setValue(pretty)
-        State.cache = pretty
-        droneIntel(formatterIcon)
-      }
-      break
+
     case 'HELP':
       editor.setValue(`/* 
 -----------------------------
@@ -213,7 +214,7 @@ export const execute = async (CONSOLE) => {
  LOAD: load from storage
  DELETE: remove from storage
  LIST: list folder content content
- PRETTY: format code
+ SHARE: create a share link of a file
  LICENSE: read license info
  ----------------------------
 */`)

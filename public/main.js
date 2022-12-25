@@ -5,16 +5,15 @@ export const consoleElement = document.getElementById('console')
 export const editorContainer = document.getElementById('editor-container')
 export const mainContainer = document.getElementById('main-container')
 export const headerContainer = document.getElementById('header')
-export const focusButton = document.getElementById('focus-button')
-export const keyButton = document.getElementById('key')
-export const appButton = document.getElementById('app-settings')
+// export const keyButton = document.getElementById('key')
+// export const appButton = document.getElementById('app-settings')
+// export const formatterButton = document.getElementById('formatter')
 export const droneButton = document.getElementById('drone')
 export const errorIcon = document.getElementById('error-drone-icon')
 export const execIcon = document.getElementById('exec-drone-icon')
 export const formatterIcon = document.getElementById('formatter-drone-icon')
 export const keyIcon = document.getElementById('key-drone-icon')
 export const xIcon = document.getElementById('x-drone-icon')
-export const formatterButton = document.getElementById('formatter')
 export const popupContainer = document.getElementById('popup-container')
 export const applicationContainer = document.getElementById(
   'application-container'
@@ -29,14 +28,13 @@ export const consoleResizerElement = document.getElementById('console-resizer')
 export const consoleEditor = CodeMirror(popupContainer)
 
 droneButton.addEventListener('click', () => execute({ value: '_LOG' }))
-appButton.addEventListener('click', () => {
-  execute({ value: 'EXEC' })
-  // execute({ value: 'INPUT ' + consoleElement.value })
-})
-formatterButton.addEventListener('click', () => {
-  execute({ value: 'PRETTY' })
-})
-keyButton.addEventListener('click', () => execute({ value: 'LIST' }))
+// appButton.addEventListener('click', () => {
+//   execute({ value: 'EXEC' })
+// })
+// formatterButton.addEventListener('click', () => {
+//   execute({ value: 'PRETTY' })
+// })
+// keyButton.addEventListener('click', () => execute({ value: 'LIST' }))
 export const editor = CodeMirror(editorContainer, {})
 editorContainer.addEventListener(
   'click',

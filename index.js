@@ -101,12 +101,10 @@ const getReqData = (req) =>
   })
 
 const handleChanges = (data = [], buffer = '') => {
-  const characters = buffer
   let pointer = 0
   return data.reduce((result, change) => {
     if (change[0] === 0) {
-      for (let i = pointer; i < pointer + change[1]; ++i)
-        result += characters[i]
+      for (let i = pointer; i < pointer + change[1]; ++i) result += buffer[i]
       pointer += change[1]
     } else if (change[0] === -1) pointer += change[1]
     else if (change[0] === 1) result += change[1]
@@ -169,8 +167,9 @@ router['POST']['/save'] = async (req, res, { query, cookie }) => {
     .then(async () => {
       await access(filepath, constants.F_OK)
         .then(async () => {
-          const file = handleChanges(data, await readFile(filepath, 'utf-8'))
-          await writeFile(filepath, file)
+          const buffer = await readFile(filepath, 'utf-8')
+          const file = handleChanges(data, buffer)
+          writeFile(filepath, file)
         })
         .catch(async () => {
           const file = handleChanges(data, '')

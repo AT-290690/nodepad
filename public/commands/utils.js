@@ -1,7 +1,7 @@
 import {
   droneButton,
   editor,
-  formatterIcon,
+  // formatterIcon,
   consoleElement,
   // alertIcon,
   errorIcon,
@@ -46,28 +46,7 @@ export const State = {
   activeWindow: null,
   input: '',
   cache: '',
-  settings: {
-    lint: false,
-    beautify: {
-      indent_size: '2',
-      indent_char: ' ',
-      max_preserve_newlines: '-1',
-      preserve_newlines: false,
-      keep_array_indentation: true,
-      break_chained_methods: true,
-      indent_scripts: 'keep',
-      brace_style: 'none,preserve-inline',
-      space_before_conditional: true,
-      unescape_strings: false,
-      jslint_happy: true,
-      end_with_newline: false,
-      wrap_line_length: '80',
-      indent_inner_html: false,
-      comma_first: false,
-      e4x: true,
-      indent_empty_lines: false,
-    },
-  },
+  settings: {},
 }
 
 export const droneIntel = (icon) => {
@@ -105,10 +84,14 @@ globalThis._logger = (disable = 0) => {
   return (msg, comment = '', space) => {
     const current = popup.getValue()
     popup.setValue(
-      `${current ? current + '\n' : ''}${comment
-        .split('\n')
-        .map((x) => `// ${x}`)
-        .join('\n')}
+      `${current ? current : ''}${
+        comment
+          ? comment
+              .split('\n')
+              .map((x) => `// ${x}`)
+              .join('\n')
+          : ''
+      }
 ${msg !== undefined ? JSON.stringify(msg, null, space) : undefined}`
     )
     popup.setCursor(
