@@ -129,16 +129,11 @@ router['GET']['/dir'] = async (req, res) => {
     maxAge,
   }
   mkdir(dir)
-  res.setHeader(
-    'Set-Cookie',
-    `Value=${creds.id}.${creds.value}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Strict; Secure`
-  )
   cookieJar.set(creds.id, cookie)
-  res.writeHead(200, { 'Content-Type': 'application/text' })
-  // res.headers(
-  //   'Set-Cookie',
-  //   `Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Strict`
-  // )
+  res.writeHead(200, {
+    'Content-Type': 'application/text',
+    'Set-Cookie': `Value=${creds.id}.${creds.value}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Strict; Secure`,
+  })
   res.end(creds.id)
 }
 router['GET']['/ls'] = async (req, res, { query, cookie }) => {
@@ -264,8 +259,7 @@ router['GET']['*'] = async (req, res, { pathname }) => {
     return
   }
   try {
-    res.setHeader('Content-Encoding', 'br')
-    res.writeHead(200, { 'Content-Type': type })
+    res.writeHead(200, { 'Content-Type': type, 'Content-Encoding': 'br' })
     brotliCompress(await readFile(filePath), {}, (error, buffer) =>
       error ? console.log(error) : res.end(buffer)
     )

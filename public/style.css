@@ -87,7 +87,7 @@ body {
   font-style: normal;
   letter-spacing: -0.05em;
   background-color: var(--background-primary);
-  padding-inline-start: 80px;
+  padding-inline-start: 70px;
 }
 .error_line {
   color: #ff275d;
@@ -157,7 +157,6 @@ iframe {
   left: 5px; */
   top: 5px;
   text-align: center;
-  padding: 0px;
   background-color: transparent;
   position: fixed;
   z-index: 1000;
