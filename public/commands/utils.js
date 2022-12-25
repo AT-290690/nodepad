@@ -44,7 +44,6 @@ export const correctFilePath = (filename) => {
 }
 export const State = {
   activeWindow: null,
-  isErrored: true,
   input: '',
   cache: '',
   settings: {
@@ -106,7 +105,10 @@ globalThis._logger = (disable = 0) => {
   return (msg, comment = '', space) => {
     const current = popup.getValue()
     popup.setValue(
-      `${current ? current + '\n' : ''}// ${comment}
+      `${current ? current + '\n' : ''}${comment
+        .split('\n')
+        .map((x) => `// ${x}`)
+        .join('\n')}
 ${msg !== undefined ? JSON.stringify(msg, null, space) : undefined}`
     )
     popup.setCursor(

@@ -1,6 +1,7 @@
 import {
   consoleEditor,
   consoleElement,
+  droneButton,
   errorIcon,
   execIcon,
   formatterIcon,
@@ -44,8 +45,8 @@ export const execute = async (CONSOLE) => {
         })
       break
     case 'RUN':
+    case '':
       run()
-      consoleElement.value = ''
       break
     case 'LICENSE':
       editor.setValue(`/*
@@ -160,6 +161,7 @@ export const execute = async (CONSOLE) => {
         }).then(() => {
           // localStorage.setItem(file, editor.getValue())
           droneIntel(keyIcon)
+          droneButton.classList.remove('shake')
           State.cache = source
           State.lastSelectedFile = filename
         })
