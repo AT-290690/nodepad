@@ -3,8 +3,8 @@ import {
   consoleElement,
   droneButton,
   errorIcon,
-  execIcon,
-  formatterIcon,
+  // execIcon,
+  // formatterIcon,
   keyIcon,
   xIcon,
 } from '../main.js'
@@ -116,14 +116,11 @@ export const execute = async (CONSOLE) => {
         .then((d) => d.json())
         .then((files) => {
           exe(
-            `const __debug_log = _logger(); 
+            `const __debug_log = _print(); 
             _print()('${State.dir}/${PARAMS[0] ?? ''}'); 
-            ${files.map((file) => `__debug_log("${file}")`).join('\n')}`
+            ${files.map((file) => `__debug_log(". ${file}")`).join('\n')}`
           )
-          consoleEditor.focus()
-
           consoleElement.value = ''
-          droneIntel(keyIcon)
         })
       break
     case 'ESC':
@@ -198,6 +195,7 @@ export const execute = async (CONSOLE) => {
       break
 
     case 'HELP':
+      State.cache = ''
       editor.setValue(`/* 
 -----------------------------
  Press on the drone - run code
