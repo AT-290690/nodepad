@@ -38,9 +38,9 @@ class CookieJar {
   values() {
     return [...this.#cookies.values()]
   }
-  isCookieVerified([id, value]) {
+  isCookieVerified([id, value], dir) {
     const current = this.get(id)
-    return current && value === current.value
+    return current && value === current.value && dir === current.id
   }
 }
 
@@ -137,7 +137,7 @@ router['GET']['/dir'] = async (req, res) => {
   res.end(creds.id)
 }
 router['GET']['/ls'] = async (req, res, { query, cookie }) => {
-  if (!cookieJar.isCookieVerified(cookie)) {
+  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
     return
@@ -155,7 +155,7 @@ router['GET']['/ls'] = async (req, res, { query, cookie }) => {
     })
 }
 router['POST']['/save'] = async (req, res, { query, cookie }) => {
-  if (!cookieJar.isCookieVerified(cookie)) {
+  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
     return
@@ -186,7 +186,7 @@ router['POST']['/save'] = async (req, res, { query, cookie }) => {
   res.end()
 }
 router['POST']['/exec'] = async (req, res, { query, cookie }) => {
-  if (!cookieJar.isCookieVerified(cookie)) {
+  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
     return
@@ -198,7 +198,7 @@ router['POST']['/exec'] = async (req, res, { query, cookie }) => {
   res.end()
 }
 router['POST']['/disconnect'] = async (req, res, { query, cookie }) => {
-  if (!cookieJar.isCookieVerified(cookie)) {
+  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
     return
@@ -211,18 +211,25 @@ router['POST']['/disconnect'] = async (req, res, { query, cookie }) => {
   res.end()
 }
 router['DELETE']['/del'] = async (req, res, { query, cookie }) => {
-  if (!cookieJar.isCookieVerified(cookie)) {
+  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
     return
   }
   const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
-  access(filepath, constants.F_OK).then(() => unlink(filepath))
-  res.writeHead(200, { 'Content-Type': 'application/json' })
-  res.end()
+  access(filepath, constants.F_OK)
+    .then(() => {
+      unlink(filepath)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end()
+    })
+    .catch((err) => {
+      res.writeHead(404, { 'Content-Type': 'text/html' })
+      res.end('404: File not Found')
+    })
 }
 router['DELETE']['/empty'] = async (req, res, { query, cookie }) => {
-  if (!cookieJar.isCookieVerified(cookie)) {
+  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
     return

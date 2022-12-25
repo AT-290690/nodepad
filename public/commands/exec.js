@@ -34,7 +34,8 @@ export const execute = async (CONSOLE) => {
     case 'EMPTY':
       fetch(`${API}empty?dir=${State.dir}`, {
         method: 'DELETE',
-        contentType: 'application/json',
+        'Content-Type': 'application/json',
+        credentials: 'same-origin',
       })
         .then(() => {
           droneIntel(xIcon)
@@ -110,7 +111,7 @@ export const execute = async (CONSOLE) => {
     case 'LIST':
     case '..':
       State.lastSelectedFile = null
-      fetch(`${API}ls?dir=${State.dir}/${PARAMS[0] ?? ''}`, {
+      fetch(`${API}ls?dir=${State.dir}${PARAMS[0] ?? ''}`, {
         credentials: 'same-origin',
       })
         .then((d) => d.json())
@@ -155,7 +156,7 @@ export const execute = async (CONSOLE) => {
         const source = editor.getValue()
         fetch(`${API}save?dir=${State.dir}&filename=${filename}`, {
           method: 'POST',
-          contentType: 'application/json',
+          'Content-Type': 'application/json',
           credentials: 'same-origin',
           body: JSON.stringify(matchDiff(State.cache, source)),
         }).then(() => {
@@ -175,7 +176,7 @@ export const execute = async (CONSOLE) => {
         }`,
         {
           method: 'DELETE',
-          contentType: 'application/json',
+          'Content-Type': 'application/json',
           credentials: 'same-origin',
         }
       )
@@ -203,7 +204,7 @@ export const execute = async (CONSOLE) => {
         }`,
         {
           method: 'POST',
-          contentType: 'application/json',
+          'Content-Type': 'application/json',
           credentials: 'same-origin',
           // body: editor.getValue(),
         }
