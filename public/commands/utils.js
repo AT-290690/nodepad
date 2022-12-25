@@ -8,6 +8,7 @@ import {
   popupContainer,
   consoleEditor,
   applicationContainer,
+  execIcon,
 } from '../main.js'
 export const print = function (...values) {
   values.forEach(
@@ -80,7 +81,7 @@ export const exe = async (source, params) => {
   try {
     const result = await new AsyncFunction(`${State.input};${source}`)()
     droneButton.classList.remove('shake')
-    droneIntel(formatterIcon)
+    droneIntel(execIcon)
     return result
   } catch (err) {
     consoleElement.classList.remove('info_line')

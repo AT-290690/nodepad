@@ -2,6 +2,7 @@ import {
   consoleEditor,
   consoleElement,
   errorIcon,
+  execIcon,
   formatterIcon,
   keyIcon,
   xIcon,
@@ -24,21 +25,33 @@ export const execute = async (CONSOLE) => {
   const [CMD, ...PARAMS] = selectedConsoleLine.split(' ')
   switch (CMD?.trim()?.toUpperCase()) {
     case 'CLEAR':
-      State.source = editor.getValue()
+      State.lastSelectedFile = null
       editor.setValue('')
       consoleElement.value = ''
       droneIntel(xIcon)
+      break
+    case 'EMPTY':
+      fetch(`${API}empty?dir=${State.dir}`, {
+        method: 'DELETE',
+        contentType: 'application/json',
+      })
+        .then(() => {
+          droneIntel(xIcon)
+        })
+        .finally(() => {
+          editor.setValue('')
+          consoleElement.value = ''
+        })
       break
     case 'RUN':
       run()
       consoleElement.value = ''
       break
     case 'LICENSE':
-      State.source = editor.getValue()
       editor.setValue(`/*
   MIT License
 
-  Copyright (c) 2022 AT-290690
+  Copyright (c) 2023 AT-290690
   
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -86,7 +99,7 @@ export const execute = async (CONSOLE) => {
       break
     case 'DIR':
     case '//':
-      fetch(API + 'dir')
+      fetch(API + 'dir', { credentials: 'same-origin' })
         .then((res) => res.text())
         .then((data) => {
           consoleElement.value = ''
@@ -95,13 +108,17 @@ export const execute = async (CONSOLE) => {
       break
     case 'LIST':
     case '..':
-      fetch(`${API}ls?dir=${State.dir}`)
+      State.lastSelectedFile = null
+      fetch(`${API}ls?dir=${State.dir}/${PARAMS[0] ?? ''}`, {
+        credentials: 'same-origin',
+      })
         .then((d) => d.json())
         .then((files) => {
-          editor.setValue(`${State.dir}\n${files.join('\n')}`)
+          editor.setValue(
+            `//${State.dir}/${PARAMS[0] ?? ''}\n${files.join('\n')}`
+          )
           consoleElement.value = ''
           droneIntel(keyIcon)
-          State.lastSelectedFile = null
         })
       break
     case 'ESC':
@@ -115,15 +132,14 @@ export const execute = async (CONSOLE) => {
     case 'LOAD':
     case '.':
       {
-        State.source = editor.getValue()
         const file = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
-        fetch(`${API}portals/${State.dir}/${file}`)
+        fetch(`${API}portals/${State.dir}/${file}`, {
+          credentials: 'same-origin',
+        })
           .then((res) => res.text())
           .then((data) => {
             State.cache = data
             editor.setValue(data)
-          })
-          .then(() => {
             State.lastSelectedFile = file
             droneIntel(keyIcon)
             consoleElement.value = ''
@@ -139,15 +155,14 @@ export const execute = async (CONSOLE) => {
         fetch(`${API}save?dir=${State.dir}&filename=${filename}`, {
           method: 'POST',
           contentType: 'application/json',
+          credentials: 'same-origin',
           body: JSON.stringify(matchDiff(State.cache, source)),
+        }).then(() => {
+          // localStorage.setItem(file, editor.getValue())
+          droneIntel(keyIcon)
+          State.cache = source
+          State.lastSelectedFile = filename
         })
-          .then(() => {
-            // localStorage.setItem(file, editor.getValue())
-            droneIntel(keyIcon)
-          })
-          .finally(() => {
-            State.cache = source
-          })
       }
       break
     case 'DELETE':
@@ -159,6 +174,7 @@ export const execute = async (CONSOLE) => {
         {
           method: 'DELETE',
           contentType: 'application/json',
+          credentials: 'same-origin',
         }
       )
         .then(() => {
@@ -170,37 +186,36 @@ export const execute = async (CONSOLE) => {
         })
       break
     case 'PRETTY':
-      editor.setValue(js_beautify(editor.getValue(), State.settings.beautify))
-      droneIntel(formatterIcon)
+      {
+        const pretty = js_beautify(editor.getValue(), State.settings.beautify)
+        editor.setValue(pretty)
+        State.cache = pretty
+        droneIntel(formatterIcon)
+      }
       break
     case 'EXEC':
     case '>>':
       fetch(
         `${API}exec?dir=${State.dir}&filename=${
-          PARAMS[0] ?? State.lastSelectedFile
+          PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
         }`,
         {
           method: 'POST',
           contentType: 'application/json',
+          credentials: 'same-origin',
           // body: editor.getValue(),
         }
       )
         // .then((data) => data.text())
         .then((data) => {
-          droneIntel(keyIcon)
+          droneIntel(execIcon)
           // editor.setValue(data)
         })
         .catch((err) => console.log(err))
       consoleElement.value = ''
 
       break
-    case 'BACK':
-      editor.setValue(State.source)
-      droneIntel(keyIcon)
-      consoleElement.value = ''
-      break
     case 'HELP':
-      State.source = editor.getValue()
       editor.setValue(`/* 
 -----------------------------
  Press on the drone - run code
@@ -208,15 +223,15 @@ export const execute = async (CONSOLE) => {
 -----------------------------
  Enter a command in the console
  ---------[COMMANDS]---------
- BACK: go back to the code
  HELP: list these commands
  RUN: run code 
  CLEAR: clears the editor content
  X: clears search, log and canvas pannels
+ EMPTY: deletes all files in the folder
  SAVE: save in starage
  LOAD: load from storage
  DELETE: remove from storage
- LIST: list stash content
+ LIST: list folder content content
  PRETTY: format code
  LICENSE: read license info
  ----------------------------
