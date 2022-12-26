@@ -65,6 +65,7 @@ const types = {
   ttf: 'application/x-font-ttf',
   html: 'text/html',
   css: 'text/css',
+  less: 'text/css',
   js: 'application/javascript',
   png: 'image/png',
   svg: 'image/svg+xml',
