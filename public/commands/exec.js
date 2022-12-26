@@ -3,6 +3,7 @@ import {
   consoleElement,
   droneButton,
   errorIcon,
+  execIcon,
   // execIcon,
   // formatterIcon,
   keyIcon,
@@ -98,6 +99,28 @@ export const execute = async (CONSOLE) => {
         consoleEditor.focus()
       }
 
+      break
+    case 'EXEC':
+    case '>>':
+      {
+        fetch(
+          `${API}exec?dir=${State.dir}&filename=${
+            PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
+          }`,
+          {
+            method: 'POST',
+            'Content-Type': 'application/json',
+            credentials: 'same-origin',
+          }
+        )
+          .then((data) => data.text())
+          .then((data) => {
+            droneIntel(execIcon)
+            exe(`_print()('${data ?? ''}')`)
+          })
+          .catch((err) => console.log(err))
+        consoleElement.value = ''
+      }
       break
     case 'DIR':
       fetch(API + 'dir', { credentials: 'same-origin' })

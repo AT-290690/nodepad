@@ -1,5 +1,5 @@
 {
-  "type": "module",
+  "type": "commonjs",
   "engines": {
     "node": "16.13.0"
   },

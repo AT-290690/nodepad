@@ -1,18 +1,18 @@
-import {
+const {
   writeFile,
   readFile,
   access,
   mkdir,
   readdir,
   unlink,
-} from 'fs/promises'
-import { constants, mkdirSync, rm } from 'fs'
-import http from 'http'
-import path from 'path'
-import url from 'url'
-import { randomUUID } from 'crypto'
-// import { fork } from 'child_process'
-import { brotliCompress } from 'zlib'
+} = require('fs/promises')
+const { constants, mkdirSync, rm } = require('fs')
+const http = require('http')
+const path = require('path')
+const url = require('url')
+const { randomUUID } = require('crypto')
+const { fork } = require('child_process')
+const { brotliCompress } = require('zlib')
 
 const cookieRecepie = () => ({ id: randomUUID(), value: randomUUID() })
 class CookieJar {
@@ -48,21 +48,15 @@ class CookieJar {
 
 const cookieJar = new CookieJar()
 
-// const runScript = (scriptPath, args, callback) => {
-//   let invoked = false
-//   let process = fork(scriptPath, args)
-//   process.on('error', function (err) {
-//     if (invoked) return
-//     invoked = true
-//     callback(err)
-//   })
-//   process.on('exit', function (code) {
-//     if (invoked) return
-//     invoked = true
-//     var err = code === 0 ? null : new Error('exit code ' + code)
-//     callback(err)
-//   })
-// }
+const runScript = async (scriptPath, dir, callback) => {
+  const child = fork('./sandbox.js')
+  const script = await readFile(scriptPath, 'utf-8')
+  child.send({ script, dir })
+  child.on('message', (result) => callback(result))
+  child.on('error', (error) => {
+    console.error(`Error: ${error.message}`)
+  })
+}
 
 const PORT = process.env.PORT || 8181
 const directoryName = './public'
@@ -117,7 +111,6 @@ const router = {
   PUT: {},
   DELETE: {},
 }
-
 router['GET']['/dir'] = async (req, res) => {
   const creds = cookieRecepie()
   const dir = directoryName + '/portals/' + creds.id
@@ -134,6 +127,19 @@ router['GET']['/dir'] = async (req, res) => {
     'Set-Cookie': `Value=${creds.id}.${creds.value}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Strict; Secure`,
   })
   res.end(creds.id)
+}
+router['POST']['/exec'] = async (req, res, { query, cookie }) => {
+  if (!cookieJar.isCookieVerified(cookie, query.dir)) {
+    res.writeHead(403, { 'Content-Type': 'text/html' })
+    res.end('403: Unauthorized!')
+    return
+  }
+  const dir = `${directoryName}/portals/${query.dir}/`
+  const filepath = `${dir}${query.filename}`
+  runScript(filepath, dir, (result) => {
+    res.writeHead(200, { 'Content-Type': 'application/text' })
+    res.end(result)
+  })
 }
 router['GET']['/ls'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
