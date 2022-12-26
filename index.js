@@ -11,7 +11,7 @@ import http from 'http'
 import path from 'path'
 import url from 'url'
 import { randomUUID } from 'crypto'
-import { fork } from 'child_process'
+// import { fork } from 'child_process'
 import { brotliCompress } from 'zlib'
 
 const cookieRecepie = () => ({ id: randomUUID(), value: randomUUID() })
@@ -48,22 +48,21 @@ class CookieJar {
 
 const cookieJar = new CookieJar()
 
-const runScript = (scriptPath, args, callback) => {
-  let invoked = false
-
-  let process = fork(scriptPath, args)
-  process.on('error', function (err) {
-    if (invoked) return
-    invoked = true
-    callback(err)
-  })
-  process.on('exit', function (code) {
-    if (invoked) return
-    invoked = true
-    var err = code === 0 ? null : new Error('exit code ' + code)
-    callback(err)
-  })
-}
+// const runScript = (scriptPath, args, callback) => {
+//   let invoked = false
+//   let process = fork(scriptPath, args)
+//   process.on('error', function (err) {
+//     if (invoked) return
+//     invoked = true
+//     callback(err)
+//   })
+//   process.on('exit', function (code) {
+//     if (invoked) return
+//     invoked = true
+//     var err = code === 0 ? null : new Error('exit code ' + code)
+//     callback(err)
+//   })
+// }
 
 const PORT = process.env.PORT || 8181
 const directoryName = './public'

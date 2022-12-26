@@ -1,0 +1,1 @@
+"\nMy level of hate:\n2000\n"

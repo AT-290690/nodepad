@@ -1,9 +1,7 @@
 import {
   droneButton,
   editor,
-  // formatterIcon,
   consoleElement,
-  // alertIcon,
   errorIcon,
   popupContainer,
   consoleEditor,

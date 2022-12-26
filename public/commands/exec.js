@@ -148,19 +148,46 @@ export const execute = async (CONSOLE) => {
           })
       }
       break
-    case 'SAVE':
-    case '+':
+    case 'DUMP':
+    case '*':
       {
         consoleElement.value = ''
-        const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
-        const source = editor.getValue()
+        const newFile = PARAMS[0]
+        const filename = newFile ?? State.lastSelectedFile ?? '_.js'
+        const source = consoleEditor
+          .getValue()
+          .split('\n')
+          .filter((x) => !(x[0] === '/' && x[1] === '/'))
+          .join('\n')
+        if (newFile !== State.lastSelectedFile) State.cache = ''
         fetch(`${API}save?dir=${State.dir}&filename=${filename}`, {
           method: 'POST',
           'Content-Type': 'application/json',
           credentials: 'same-origin',
           body: JSON.stringify(matchDiff(State.cache, source)),
         }).then(() => {
-          // localStorage.setItem(file, editor.getValue())
+          droneIntel(keyIcon)
+          droneButton.classList.remove('shake')
+          State.cache = source
+          State.lastSelectedFile = filename
+        })
+      }
+
+      break
+    case 'SAVE':
+    case '+':
+      {
+        consoleElement.value = ''
+        const newFile = PARAMS[0]
+        const filename = newFile ?? State.lastSelectedFile ?? '_.js'
+        const source = editor.getValue()
+        if (newFile !== State.lastSelectedFile) State.cache = ''
+        fetch(`${API}save?dir=${State.dir}&filename=${filename}`, {
+          method: 'POST',
+          'Content-Type': 'application/json',
+          credentials: 'same-origin',
+          body: JSON.stringify(matchDiff(State.cache, source)),
+        }).then(() => {
           droneIntel(keyIcon)
           droneButton.classList.remove('shake')
           State.cache = source
