@@ -1,6 +1,5 @@
 const vm = require('vm')
 const { exec } = require('child_process')
-
 const { readFile, writeFile, rm, mkdir } = require('fs/promises')
 const sanitizePath = (path) => path.replaceAll('../', '')
 process.on('message', async ({ script, dir }) => {

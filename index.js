@@ -112,6 +112,7 @@ const router = {
   PUT: {},
   DELETE: {},
 }
+const sanitizePath = (path) => path.replaceAll('../', '')
 router['GET']['/dir'] = async (req, res) => {
   const creds = cookieRecepie()
   const dir = directoryName + '/portals/' + creds.id
@@ -136,7 +137,7 @@ router['POST']['/exec'] = async (req, res, { query, cookie }) => {
     return
   }
   const dir = `${directoryName}/portals/${query.dir}/`
-  const filepath = `${dir}${query.filename}`
+  const filepath = `${dir}${sanitizePath(query.filename)}`
   runScript(filepath, dir, (result) => {
     res.writeHead(200, { 'Content-Type': 'application/text' })
     res.end(result)
@@ -148,7 +149,8 @@ router['GET']['/ls'] = async (req, res, { query, cookie }) => {
     res.end('403: Unauthorized!')
     return
   }
-  const dir = directoryName + '/portals/' + query.dir + '/' + query.sub
+  const dir =
+    directoryName + '/portals/' + query.dir + '/' + sanitizePath(query.sub)
   await access(dir, constants.F_OK)
     .then(async () => {
       const list = await readdir(dir)
@@ -168,7 +170,7 @@ router['POST']['/save'] = async (req, res, { query, cookie }) => {
   }
   const data = JSON.parse(await getReqData(req))
   const dir = `${directoryName}/portals/${query.dir}/`
-  const filepath = `${dir}${query.filename}`
+  const filepath = `${dir}${sanitizePath(query.filename)}`
   await access(dir, constants.F_OK)
     .then(async () => {
       await access(filepath, constants.F_OK)
@@ -212,7 +214,9 @@ router['DELETE']['/del'] = async (req, res, { query, cookie }) => {
     res.end('403: Unauthorized!')
     return
   }
-  const filepath = `${directoryName}/portals/${query.dir}/${query.filename}`
+  const filepath = `${directoryName}/portals/${query.dir}/${sanitizePath(
+    query.filename
+  )}`
   access(filepath, constants.F_OK)
     .then(() => {
       unlink(filepath)
