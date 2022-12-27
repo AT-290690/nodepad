@@ -131,7 +131,7 @@ export const execute = async (CONSOLE) => {
     case 'LIST':
     case '..':
       State.lastSelectedFile = null
-      fetch(`${API}ls?dir=${State.dir}${PARAMS[0] ?? ''}`, {
+      fetch(`${API}ls?dir=${State.dir}&sub=${PARAMS[0] ?? ''}`, {
         credentials: 'same-origin',
       })
         .then((d) => d.json())

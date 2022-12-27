@@ -148,7 +148,7 @@ router['GET']['/ls'] = async (req, res, { query, cookie }) => {
     res.end('403: Unauthorized!')
     return
   }
-  const dir = directoryName + '/portals/' + query.dir + '/'
+  const dir = directoryName + '/portals/' + query.dir + '/' + query.sub
   await access(dir, constants.F_OK)
     .then(async () => {
       const list = await readdir(dir)

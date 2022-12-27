@@ -1,11 +1,29 @@
 const vm = require('vm')
-const { readFile, writeFile } = require('fs/promises')
+const { exec } = require('child_process')
+
+const { readFile, writeFile, rm, mkdir } = require('fs/promises')
+const sanitizePath = (path) => path.replaceAll('../', '')
 process.on('message', async ({ script, dir }) => {
   const sandbox = {
-    read: (path) => readFile(dir + path.replaceAll('../', ''), 'utf-8'),
-    write: (path, data) => writeFile(dir + path.replaceAll('../', ''), data),
+    read: (path) => readFile(dir + sanitizePath(path), 'utf-8'),
+    write: (path, data) => writeFile(dir + sanitizePath(path), data),
+    remove: (path) => rm(dir + sanitizePath(path), { recursive: true }),
+    clear: () => rm(dir, { recursive: true }).then(() => mkdir(dir)),
+    clone: (repo, path = '') =>
+      exec(
+        `git clone ${repo}`,
+        {
+          stdio: [0, 1, 2],
+          cwd: dir + sanitizePath(path),
+        },
+        (err) => err && console.log(err)
+      ),
   }
-  vm.runInNewContext(script, sandbox)
-  const result = await (sandbox?.entry() ?? '')
-  process.send(JSON.stringify(result))
+  try {
+    vm.runInNewContext(script, sandbox)
+    const result = await sandbox?.entry()
+    process.send(JSON.stringify(result ?? 'Ok'))
+  } catch ({ message }) {
+    process.send(JSON.stringify(message))
+  }
 })
