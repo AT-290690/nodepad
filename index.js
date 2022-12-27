@@ -114,7 +114,7 @@ const router = {
   DELETE: {},
 }
 const sanitizePath = (path) => path.replaceAll('../', '')
-router['GET']['/dir'] = async (req, res) => {
+router['GET /dir'] = async (req, res) => {
   const creds = cookieRecepie()
   const dir = directoryName + '/portals/' + creds.id
   const maxAge = 60 * 30
@@ -131,7 +131,7 @@ router['GET']['/dir'] = async (req, res) => {
   })
   res.end(creds.id)
 }
-router['POST']['/exec'] = async (req, res, { query, cookie }) => {
+router['POST /exec'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
@@ -144,7 +144,7 @@ router['POST']['/exec'] = async (req, res, { query, cookie }) => {
     res.end(result)
   })
 }
-router['GET']['/ls'] = async (req, res, { query, cookie }) => {
+router['GET /ls'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
@@ -163,7 +163,7 @@ router['GET']['/ls'] = async (req, res, { query, cookie }) => {
       res.end('[]')
     })
 }
-router['POST']['/save'] = async (req, res, { query, cookie }) => {
+router['POST /save'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
@@ -196,7 +196,7 @@ router['POST']['/save'] = async (req, res, { query, cookie }) => {
   res.end()
 }
 
-router['POST']['/disconnect'] = async (req, res, { query, cookie }) => {
+router['POST /disconnect'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
@@ -209,7 +209,7 @@ router['POST']['/disconnect'] = async (req, res, { query, cookie }) => {
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end()
 }
-router['DELETE']['/del'] = async (req, res, { query, cookie }) => {
+router['DELETE /del'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
@@ -229,7 +229,7 @@ router['DELETE']['/del'] = async (req, res, { query, cookie }) => {
       res.end('404: File not Found')
     })
 }
-router['DELETE']['/empty'] = async (req, res, { query, cookie }) => {
+router['DELETE /empty'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
     res.writeHead(403, { 'Content-Type': 'text/html' })
     res.end('403: Unauthorized!')
@@ -242,7 +242,7 @@ router['DELETE']['/empty'] = async (req, res, { query, cookie }) => {
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end()
 }
-router['GET']['*'] = async (req, res, { pathname }) => {
+router['GET *'] = async (req, res, { pathname }) => {
   const extension = path.extname(req.url).slice(1)
   const type = extension ? types[extension] : types.html
   const supportedExtension = Boolean(type)
@@ -277,23 +277,25 @@ router['GET']['*'] = async (req, res, { pathname }) => {
   }
 }
 
-const match = (method, pathname, req, res, params) => {
-  const route = router[method][pathname]
-  if (route) {
-    route(req, res, params)
-    return true
-  }
+const match = (key, req, res, params) => {
+  const route = router[key]
+  route(req, res, params)
+  return true
 }
 
 const server = http.createServer(async (req, res) => {
   const URL = url.parse(req.url, true)
   const { query, pathname } = URL
-  const cookie = (req.headers.cookie?.split('Value=')?.[1] ?? '.').split('.')
-  match(req.method, pathname, req, res, {
-    query,
-    pathname,
-    cookie,
-  }) ?? match('GET', '*', req, res, { pathname })
+  const key = `${req.method} ${pathname}`
+  if (key in router) {
+    const rawCookie = req.headers.cookie ?? ''
+    const cookie = [rawCookie.slice(6, 42), rawCookie.slice(43)]
+    match(key, req, res, {
+      query,
+      pathname,
+      cookie,
+    })
+  } else match('GET *', req, res, { pathname })
 })
 
 server.listen(PORT, () =>
