@@ -100,6 +100,7 @@ export const execute = async (CONSOLE) => {
       break
     case 'EXEC':
     case '>>':
+    case '$':
       {
         fetch(
           `${API}exec?dir=${State.dir}&filename=${
@@ -139,7 +140,9 @@ export const execute = async (CONSOLE) => {
           droneIntel(errorIcon)
           consoleElement.classList.remove('info_line')
           consoleElement.classList.add('error_line')
-          consoleElement.value = `${response.status}: ${response.statusText}`
+          consoleElement.value = `${response.status}: ${
+            response.statusText ?? 'Unauthorized'
+          }`
           droneButton.classList.remove('shake')
           droneButton.classList.add('shake')
           break
@@ -150,7 +153,6 @@ export const execute = async (CONSOLE) => {
         _print()('${State.dir}/${PARAMS[0] ?? ''}'); 
         ${files.map((file) => `__debug_log("· ${file}")`).join('\n')}`
         )
-        consoleElement.value = ''
       }
       break
     case 'ESC':

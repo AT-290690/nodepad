@@ -19,6 +19,8 @@ const MINUTES = 60
 const directoryName = './public'
 const types = {
   ttf: 'application/x-font-ttf',
+  otf: 'application/x-font-otf',
+  wasm: 'application/wasm',
   html: 'text/html',
   css: 'text/css',
   less: 'text/css',
@@ -92,7 +94,6 @@ class ThreadPool {
 }
 
 const forks = new ThreadPool(require('os').cpus().length)
-
 const runScript = async (scriptPath, dir) => {
   const script = await readFile(scriptPath, 'utf-8')
   forks.send({
@@ -240,7 +241,7 @@ router['DELETE /del'] = async (req, res, { query, cookie }) => {
   )}`
   access(filepath, constants.F_OK)
     .then(() => {
-      unlink(filepath)
+      rm(filepath, { recursive: true }, (err) => err && console.log(err))
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end()
     })
