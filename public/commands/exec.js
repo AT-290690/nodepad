@@ -116,7 +116,7 @@ export const execute = async (CONSOLE) => {
           .then((data) => data.text())
           .then((data) => {
             droneIntel(execIcon)
-            exe(`_print()('${data ?? ''}')`)
+            exe(`_print()(${data ?? ''})`)
           })
           .catch((err) => console.log(err))
         consoleElement.value = ''
