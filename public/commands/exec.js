@@ -225,8 +225,9 @@ export const execute = async (CONSOLE) => {
       }
       break
     case 'SHARE':
+    case '@':
       consoleElement.value = `${API}portals/${State.dir}/${
-        PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
+        PARAMS[0] ?? State.lastSelectedFile ?? 'index.html'
       }`
       break
     case 'DELETE':
@@ -251,6 +252,7 @@ export const execute = async (CONSOLE) => {
       break
 
     case 'HELP':
+    case '?':
       State.cache = ''
       editor.setValue(`/* 
 -----------------------------
