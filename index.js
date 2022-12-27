@@ -15,6 +15,7 @@ const { fork } = require('child_process')
 const { brotliCompress } = require('zlib')
 
 const PORT = process.env.PORT || 8181
+const MINUTES = 60
 const directoryName = './public'
 const types = {
   ttf: 'application/x-font-ttf',
@@ -117,7 +118,7 @@ const sanitizePath = (path) => path.replaceAll('../', '')
 router['GET /dir'] = async (req, res) => {
   const creds = cookieRecepie()
   const dir = directoryName + '/portals/' + creds.id
-  const maxAge = 60 * 30
+  const maxAge = 60 * MINUTES
   const cookie = {
     id: creds.id,
     value: creds.value,

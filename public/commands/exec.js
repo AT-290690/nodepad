@@ -130,19 +130,30 @@ export const execute = async (CONSOLE) => {
       break
     case 'LIST':
     case '..':
-      State.lastSelectedFile = null
-      fetch(`${API}ls?dir=${State.dir}&sub=${PARAMS[0] ?? ''}`, {
-        credentials: 'same-origin',
-      })
-        .then((d) => d.json())
-        .then((files) => {
-          exe(
-            `const __debug_log = _print(); 
-            _print()('${State.dir}/${PARAMS[0] ?? ''}'); 
-            ${files.map((file) => `__debug_log("· ${file}")`).join('\n')}`
-          )
-          consoleElement.value = ''
-        })
+      {
+        const response = await fetch(
+          `${API}ls?dir=${State.dir}&sub=${PARAMS[0] ?? ''}`,
+          {
+            credentials: 'same-origin',
+          }
+        )
+        if (response.status !== 200) {
+          droneIntel(errorIcon)
+          consoleElement.classList.remove('info_line')
+          consoleElement.classList.add('error_line')
+          consoleElement.value = `${response.status}: ${response.statusText}`
+          droneButton.classList.remove('shake')
+          droneButton.classList.add('shake')
+          break
+        }
+        const files = await response.json()
+        exe(
+          `const __debug_log = _print(); 
+        _print()('${State.dir}/${PARAMS[0] ?? ''}'); 
+        ${files.map((file) => `__debug_log("· ${file}")`).join('\n')}`
+        )
+        consoleElement.value = ''
+      }
       break
     case 'ESC':
     case 'X':
@@ -157,25 +168,25 @@ export const execute = async (CONSOLE) => {
     case '·':
       {
         const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
-        const res = await fetch(`${API}portals/${State.dir}/${filename}`, {
+        const response = await fetch(`${API}portals/${State.dir}/${filename}`, {
           credentials: 'same-origin',
         })
-        const data = await res.text()
-        if (res.status !== 200) {
+        const data = await response.text()
+        if (response.status !== 200) {
           droneIntel(errorIcon)
           consoleElement.classList.remove('info_line')
           consoleElement.classList.add('error_line')
           consoleElement.value = data
           droneButton.classList.remove('shake')
           droneButton.classList.add('shake')
-        } else {
-          State.cache = data
-          editor.setValue(data)
-          State.lastSelectedFile = filename
-          droneIntel(keyIcon)
-          consoleElement.value = ''
-          consoleElement.setAttribute('placeholder', `· ${filename}`)
+          break
         }
+        State.cache = data
+        editor.setValue(data)
+        State.lastSelectedFile = filename
+        droneIntel(keyIcon)
+        consoleElement.value = ''
+        consoleElement.setAttribute('placeholder', `· ${filename}`)
       }
       break
     case 'DUMP':
