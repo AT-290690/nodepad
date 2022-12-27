@@ -28,9 +28,6 @@ process.on('message', async ({ script, dir }) => {
   }
   try {
     vm.runInNewContext(script, sandbox)
-    const result = await sandbox?.entry()
-    process.send(JSON.stringify(result ?? 'Ok'))
-  } catch ({ message }) {
-    process.send(JSON.stringify(message))
-  }
+    await sandbox?.entry()
+  } catch (err) {}
 })

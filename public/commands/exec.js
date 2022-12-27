@@ -103,7 +103,7 @@ export const execute = async (CONSOLE) => {
       {
         fetch(
           `${API}exec?dir=${State.dir}&filename=${
-            PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
+            PARAMS[0] ?? State.lastSelectedFile ?? '_entry.js'
           }`,
           {
             method: 'POST',
@@ -111,10 +111,8 @@ export const execute = async (CONSOLE) => {
             credentials: 'same-origin',
           }
         )
-          .then((data) => data.text())
-          .then((data) => {
+          .then(() => {
             droneIntel(execIcon)
-            exe(`_print()(${data})`)
           })
           .catch((err) => console.log(err))
         consoleElement.value = ''
@@ -167,7 +165,7 @@ export const execute = async (CONSOLE) => {
     case '.':
     case '·':
       {
-        const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
+        const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_entry.js'
         const response = await fetch(`${API}portals/${State.dir}/${filename}`, {
           credentials: 'same-origin',
         })
@@ -194,7 +192,7 @@ export const execute = async (CONSOLE) => {
       {
         consoleElement.value = ''
         const newFile = PARAMS[0]
-        const filename = newFile ?? State.lastSelectedFile ?? '_.js'
+        const filename = newFile ?? State.lastSelectedFile ?? '_entry.js'
         const source = consoleEditor
           .getValue()
           .split('\n')
@@ -220,7 +218,7 @@ export const execute = async (CONSOLE) => {
       {
         consoleElement.value = ''
         const newFile = PARAMS[0]
-        const filename = newFile ?? State.lastSelectedFile ?? '_.js'
+        const filename = newFile ?? State.lastSelectedFile ?? '_entry.js'
         const source = editor.getValue()
         if (newFile !== State.lastSelectedFile) State.cache = ''
         fetch(`${API}save?dir=${State.dir}&filename=${filename}`, {
@@ -236,6 +234,12 @@ export const execute = async (CONSOLE) => {
           consoleElement.setAttribute('placeholder', `· ${filename}`)
         })
       }
+      break
+    case '++':
+      State.lastSelectedFile = null
+      editor.setValue('')
+      consoleElement.value = ''
+      execute({ value: '+ ' + PARAMS[0] ?? '' })
       break
     case 'WINDOW':
     case '#':

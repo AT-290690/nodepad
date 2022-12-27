@@ -71,13 +71,33 @@ class CookieJar {
 
 const cookieJar = new CookieJar()
 
-const runScript = async (scriptPath, dir, callback) => {
-  const child = fork('./sandbox.js')
+class ThreadPool {
+  #counter = 0
+  constructor(N) {
+    this.pool = Array.from({ length: N }).map(() => this.spawn())
+  }
+  spawn() {
+    const child = fork('./sandbox.js')
+    child.on('error', (error) => console.error(`Error: ${error.message}`))
+    return child
+  }
+  send(message) {
+    const index = (this.#counter = (this.#counter + 1) % this.pool.length)
+    if (!this.pool[index].connected) {
+      fork.kill()
+      this.pool[index] = this.spawn()
+    }
+    this.pool[index].send(message)
+  }
+}
+
+const forks = new ThreadPool(require('os').cpus().length)
+
+const runScript = async (scriptPath, dir) => {
   const script = await readFile(scriptPath, 'utf-8')
-  child.send({ script, dir })
-  child.on('message', (result) => callback(result))
-  child.on('error', (error) => {
-    console.error(`Error: ${error.message}`)
+  forks.send({
+    script,
+    dir,
   })
 }
 
@@ -140,10 +160,9 @@ router['POST /exec'] = async (req, res, { query, cookie }) => {
   }
   const dir = `${directoryName}/portals/${query.dir}/`
   const filepath = `${dir}${sanitizePath(query.filename)}`
-  runScript(filepath, dir, (result) => {
-    res.writeHead(200, { 'Content-Type': 'application/text' })
-    res.end(result)
-  })
+  await runScript(filepath, dir)
+  res.writeHead(200, { 'Content-Type': 'application/text' })
+  res.end()
 }
 router['GET /ls'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
