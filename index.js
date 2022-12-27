@@ -14,16 +14,38 @@ const { randomUUID } = require('crypto')
 const { fork } = require('child_process')
 const { brotliCompress } = require('zlib')
 
+const PORT = process.env.PORT || 8181
+const directoryName = './public'
+const types = {
+  ttf: 'application/x-font-ttf',
+  html: 'text/html',
+  css: 'text/css',
+  less: 'text/css',
+  js: 'application/javascript',
+  png: 'image/png',
+  svg: 'image/svg+xml',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  json: 'application/json',
+  text: 'application/text',
+  txt: 'application/text',
+  xml: 'application/xml',
+}
+const root = path.normalize(path.resolve(directoryName))
 const cookieRecepie = () => ({ id: randomUUID(), value: randomUUID() })
 class CookieJar {
   #cookies = new Map()
   set(id, cookie) {
     if (cookie.id) {
       this.#cookies.set(id, cookie)
-      setTimeout(
-        () => this.#cookies.delete(id),
-        this.#cookies.get(id).maxAge * 1000
-      )
+      setTimeout(() => {
+        this.#cookies.delete(id)
+        const filepath = `${directoryName}/portals/${id}`
+        access(filepath, constants.F_OK)
+          .then(() => rm(filepath, { recursive: true }, () => {}))
+          .catch((err) => console.log(err))
+      }, this.#cookies.get(id).maxAge * 1000)
     }
   }
   get(id) {
@@ -58,27 +80,6 @@ const runScript = async (scriptPath, dir, callback) => {
   })
 }
 
-const PORT = process.env.PORT || 8181
-const directoryName = './public'
-
-const types = {
-  ttf: 'application/x-font-ttf',
-  html: 'text/html',
-  css: 'text/css',
-  less: 'text/css',
-  js: 'application/javascript',
-  png: 'image/png',
-  svg: 'image/svg+xml',
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  gif: 'image/gif',
-  json: 'application/json',
-  text: 'application/text',
-  txt: 'application/text',
-  xml: 'application/xml',
-}
-
-const root = path.normalize(path.resolve(directoryName))
 const getReqData = (req) =>
   new Promise((resolve, reject) => {
     try {
@@ -287,7 +288,7 @@ const match = (method, pathname, req, res, params) => {
 const server = http.createServer(async (req, res) => {
   const URL = url.parse(req.url, true)
   const { query, pathname } = URL
-  const cookie = req.headers.cookie?.split('Value=')[1].split('.')
+  const cookie = (req.headers.cookie?.split('Value=')?.[1] ?? '.').split('.')
   match(req.method, pathname, req, res, {
     query,
     pathname,

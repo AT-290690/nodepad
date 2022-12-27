@@ -52,6 +52,12 @@ textarea {
   font-family: var(--font-family);
   font-size: 12pt;
 }
+
+input::selection {
+  color: #2eff85;
+  background: #a9b1d660;
+}
+
 @font-face {
   font-family: 'Fantastic';
   src: url(./assets/fonts/FantasqueSansMono-Regular.ttf) format('truetype');

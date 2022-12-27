@@ -35,14 +35,14 @@ export const execute = async (CONSOLE) => {
         method: 'DELETE',
         'Content-Type': 'application/json',
         credentials: 'same-origin',
+      }).then(() => {
+        droneIntel(xIcon)
+        editor.setValue('')
+        consoleElement.value = ''
+        consoleElement.setAttribute('placeholder', `>_`)
+        State.lastSelectedFile = null
+        State.cache = ''
       })
-        .then(() => {
-          droneIntel(xIcon)
-        })
-        .finally(() => {
-          editor.setValue('')
-          consoleElement.value = ''
-        })
       break
     case 'RUN':
     case '':
@@ -156,8 +156,8 @@ export const execute = async (CONSOLE) => {
     case '.':
     case '·':
       {
-        const file = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
-        const res = await fetch(`${API}portals/${State.dir}/${file}`, {
+        const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_.js'
+        const res = await fetch(`${API}portals/${State.dir}/${filename}`, {
           credentials: 'same-origin',
         })
         const data = await res.text()
@@ -171,9 +171,10 @@ export const execute = async (CONSOLE) => {
         } else {
           State.cache = data
           editor.setValue(data)
-          State.lastSelectedFile = file
+          State.lastSelectedFile = filename
           droneIntel(keyIcon)
           consoleElement.value = ''
+          consoleElement.setAttribute('placeholder', `· ${filename}`)
         }
       }
       break
@@ -221,8 +222,13 @@ export const execute = async (CONSOLE) => {
           droneButton.classList.remove('shake')
           State.cache = source
           State.lastSelectedFile = filename
+          consoleElement.setAttribute('placeholder', `· ${filename}`)
         })
       }
+      break
+    case 'WINDOW':
+    case '#':
+      if (PARAMS.length) _app(PARAMS[0]).style.background = PARAMS[1] ?? 'white'
       break
     case 'SHARE':
     case '@':
@@ -248,6 +254,9 @@ export const execute = async (CONSOLE) => {
         .finally(() => {
           editor.setValue('')
           consoleElement.value = ''
+          consoleElement.setAttribute('placeholder', `>_`)
+          State.lastSelectedFile = null
+          State.cache = ''
         })
       break
 
@@ -266,11 +275,13 @@ export const execute = async (CONSOLE) => {
  CLEAR: clears the editor content
  X: clears search, log and canvas pannels
  EMPTY: deletes all files in the folder
+ WINDOW: open app window
  SAVE: save in starage
  LOAD: load from storage
  DELETE: remove from storage
  LIST: list folder content content
  SHARE: create a share link of a file
+ DUMP: dump console output in a file
  LICENSE: read license info
  ----------------------------
 */`)
