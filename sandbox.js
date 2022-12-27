@@ -7,5 +7,5 @@ process.on('message', async ({ script, dir }) => {
   }
   vm.runInNewContext(script, sandbox)
   const result = await (sandbox?.entry() ?? '')
-  process.send(result.toString())
+  process.send(JSON.stringify(result))
 })
