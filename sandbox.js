@@ -6,6 +6,6 @@ process.on('message', async ({ script, dir }) => {
     write: (path, data) => writeFile(dir + path.replaceAll('../', ''), data),
   }
   vm.runInNewContext(script, sandbox)
-  const result = await (sandbox?.result() ?? '')
+  const result = await (sandbox?.entry() ?? '')
   process.send(result.toString())
 })
