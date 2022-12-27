@@ -17,6 +17,14 @@ process.on('message', async ({ script, dir }) => {
         },
         (err) => err && console.log(err)
       ),
+    install: (folder = '', package = '') =>
+      exec(`npm install --prefix ${dir}${folder} ${package}`, {
+        stdio: [0, 1, 2],
+      }),
+    run: (folder = '', script = '') =>
+      exec(`npm run --prefix ${dir}${folder} ${script}`, {
+        stdio: [0, 1, 2],
+      }),
   }
   try {
     vm.runInNewContext(script, sandbox)
