@@ -43,10 +43,11 @@ export const correctFilePath = (filename) => {
 }
 export const State = {
   activeWindow: null,
+  dir: '',
   input: '',
   cache: '',
   settings: {},
-  fileTree: { ['']: Object.create(null) },
+  fileTree: { ['']: { size: 0, filename: 'root', type: 'dir' } },
 }
 
 export const droneIntel = (icon) => {
@@ -183,17 +184,6 @@ export const matchDiff = (a, b) => {
     diff.push([diff_obj[change][0], diff_obj[change][1]])
   }
   return diff_obj
-}
-export const changeDir = (path) => {
-  let cd = State.fileTree
-  const structure = path.split('/').map((d) => d.trim())
-  structure.filter(Boolean).forEach((dir) => {
-    if (!(dir in cd)) {
-      cd[dir] = Object.create(null)
-    }
-    cd = cd[dir]
-  })
-  return { structure, cd }
 }
 export const checkDir = (path) => {
   let cd = State.fileTree

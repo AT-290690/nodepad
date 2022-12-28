@@ -93,7 +93,7 @@ body {
   font-style: normal;
   letter-spacing: -0.05em;
   background-color: var(--background-primary);
-  padding-inline-start: 70px;
+  padding-inline-start: 75px;
 }
 .error_line {
   color: #ff275d;
@@ -162,6 +162,7 @@ iframe {
   /* bottom: 0px;
   left: 5px; */
   top: 5px;
+  left: 5px;
   text-align: center;
   background-color: transparent;
   position: fixed;
@@ -170,7 +171,7 @@ iframe {
 .droneIcon {
   /* bottom: 50px;
   left: 0px; */
-  left: 25px;
+  left: 30px;
   visibility: hidden;
 }
 #exit-full {
@@ -327,6 +328,7 @@ input:focus {
   border: none;
   text-align: left;
   padding: 8px;
+  cursor: copy;
 }
 .fs-autocomplete-option:hover {
   background-color: var(--comment);

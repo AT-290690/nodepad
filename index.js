@@ -1,4 +1,11 @@
-const { writeFile, readFile, access, mkdir, readdir } = require('fs/promises')
+const {
+  writeFile,
+  readFile,
+  access,
+  mkdir,
+  readdir,
+  lstat,
+} = require('fs/promises')
 const { constants, mkdirSync, rm } = require('fs')
 const http = require('http')
 const path = require('path')
@@ -154,9 +161,15 @@ router['POST /exec'] = async (req, res, { query, cookie }) => {
   }
   const dir = `${directoryName}/portals/${query.dir}/`
   const filepath = `${dir}${sanitizePath(query.filename)}`
-  await runScript(filepath, dir)
-  res.writeHead(200, { 'Content-Type': 'application/text' })
-  res.end()
+  try {
+    await access(filepath, constants.F_OK)
+    await runScript(filepath, dir)
+    res.writeHead(200, { 'Content-Type': 'application/text' })
+    res.end()
+  } catch (err) {
+    res.writeHead(404, { 'Content-Type': 'application/text' })
+    res.end()
+  }
 }
 router['GET /ls'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
@@ -166,16 +179,28 @@ router['GET /ls'] = async (req, res, { query, cookie }) => {
   }
   const dir =
     directoryName + '/portals/' + query.dir + '/' + sanitizePath(query.sub)
-  await access(dir, constants.F_OK)
-    .then(async () => {
+  try {
+    await access(dir, constants.F_OK)
+    if ((await lstat(dir)).isDirectory()) {
       const list = await readdir(dir)
+      const stats = (
+        await Promise.all(list.map((x) => lstat(`${dir}/${x}`)))
+      ).map((x) => ({ dir: x.isDirectory(), size: x.size }))
+      const listWithStats = list.reduce((acc, filename, index) => {
+        acc.push({ filename, ...stats[index] })
+        return acc
+      }, [])
       res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify(list))
-    })
-    .catch((err) => {
-      res.writeHead(404, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(listWithStats))
+    } else {
+      res.writeHead(405, { 'Content-Type': 'application/json' })
       res.end('[]')
-    })
+    }
+  } catch (err) {
+    console.log(err)
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end('[]')
+  }
 }
 router['POST /save'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
@@ -186,28 +211,28 @@ router['POST /save'] = async (req, res, { query, cookie }) => {
   const data = JSON.parse(await getReqData(req))
   const dir = `${directoryName}/portals/${query.dir}/`
   const filepath = `${dir}${sanitizePath(query.filename)}`
-  await access(dir, constants.F_OK)
-    .then(async () => {
-      await access(filepath, constants.F_OK)
-        .then(async () => {
-          const buffer = await readFile(filepath, 'utf-8')
-          const file = handleChanges(data, buffer)
-          writeFile(filepath, file)
-        })
-        .catch(async () => {
-          const file = handleChanges(data, '')
-          const folders = query.filename.split('/')
-          folders.pop()
-          if (folders.length)
-            await mkdir(`${dir}/${folders.join('/')}`, { recursive: true })
-
-          await writeFile(filepath, file)
-        })
-    })
-    .catch((err) => err)
-
-  res.writeHead(200, { 'Content-Type': 'application/text' })
-  res.end()
+  try {
+    if (
+      (await access(dir, constants.F_OK)) &&
+      (await access(filepath, constants.F_OK))
+    ) {
+      const buffer = await readFile(filepath, 'utf-8')
+      const file = handleChanges(data, buffer)
+      writeFile(filepath, file)
+    } else {
+      const file = handleChanges(data, '')
+      const folders = query.filename.split('/')
+      folders.pop()
+      if (folders.length)
+        await mkdir(`${dir}/${folders.join('/')}`, { recursive: true })
+      await writeFile(filepath, file)
+    }
+    res.writeHead(200, { 'Content-Type': 'application/text' })
+    res.end()
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'application/text' })
+    res.end()
+  }
 }
 
 router['POST /disconnect'] = async (req, res, { query, cookie }) => {
@@ -217,9 +242,10 @@ router['POST /disconnect'] = async (req, res, { query, cookie }) => {
     return
   }
   const filepath = `${directoryName}/portals/${query.dir}`
-  access(filepath, constants.F_OK)
-    .then(() => rm(filepath, { recursive: true }, () => {}))
-    .catch((err) => console.log(err))
+  try {
+    await access(filepath, constants.F_OK)
+    rm(filepath, { recursive: true }, () => {})
+  } catch (err) {}
   res.writeHead(200, { 'Content-Type': 'application/json' })
   res.end()
 }
@@ -232,16 +258,15 @@ router['DELETE /del'] = async (req, res, { query, cookie }) => {
   const filepath = `${directoryName}/portals/${query.dir}/${sanitizePath(
     query.filename
   )}`
-  access(filepath, constants.F_OK)
-    .then(() => {
-      rm(filepath, { recursive: true }, (err) => err && console.log(err))
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end()
-    })
-    .catch((err) => {
-      res.writeHead(404, { 'Content-Type': 'text/html' })
-      res.end('404: File not Found')
-    })
+  try {
+    await access(filepath, constants.F_OK)
+    rm(filepath, { recursive: true }, (err) => err && console.log(err))
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end()
+  } catch (err) {
+    res.writeHead(404, { 'Content-Type': 'text/html' })
+    res.end('404: File not Found')
+  }
 }
 router['DELETE /empty'] = async (req, res, { query, cookie }) => {
   if (!cookieJar.isCookieVerified(cookie, query.dir)) {
@@ -250,11 +275,15 @@ router['DELETE /empty'] = async (req, res, { query, cookie }) => {
     return
   }
   const dir = `${directoryName}/portals/${query.dir}/`
-  access(dir, constants.F_OK).then(() =>
+  try {
+    await access(dir, constants.F_OK)
     rm(dir, { recursive: true }, () => mkdir(dir))
-  )
-  res.writeHead(200, { 'Content-Type': 'application/json' })
-  res.end()
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end()
+  } catch (err) {
+    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.end()
+  }
 }
 router['GET *'] = async (req, res, { pathname }) => {
   const extension = path.extname(req.url).slice(1)

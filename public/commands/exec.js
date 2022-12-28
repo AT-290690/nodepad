@@ -17,7 +17,7 @@ import {
   exe,
   API,
   matchDiff,
-  changeDir,
+  checkDir,
 } from './utils.js'
 
 export const execute = async (CONSOLE) => {
@@ -154,9 +154,9 @@ export const execute = async (CONSOLE) => {
           break
         }
         const files = await response.json()
-        const { cd } = changeDir(sub)
+        const { cd } = checkDir(sub)
         autoComplete.innerHTML = ''
-        files.forEach((file) => (cd[file] = Object.create(null)))
+        files.forEach((file) => (cd[file.filename] = file))
         consoleElement.dispatchEvent(new KeyboardEvent('input'))
       }
       break
@@ -178,15 +178,17 @@ export const execute = async (CONSOLE) => {
           break
         }
         const files = await response.json()
-        const { cd } = changeDir(sub)
+        const { cd } = checkDir(sub)
         autoComplete.innerHTML = ''
         exe(
           `const __debug_log = _print();
       _print()('${State.dir}/${sub}');
       ${files
         .map((file) => {
-          cd[file] = Object.create(null)
-          return `__debug_log(". ${file}")`
+          cd[file.filename] = file
+          return `__debug_log(". ${file.filename} | size: ${
+            file.size
+          } bites type: ${file.dir ? 'dir' : 'file'}")`
         })
         .join('\n')}`
         )
@@ -269,7 +271,7 @@ export const execute = async (CONSOLE) => {
           droneButton.classList.remove('shake')
           State.cache = source
           State.lastSelectedFile = filename
-          changeDir(filename)
+          checkDir(filename)
           // const { structure } = changeDir(filename)
           // structure.pop()
           // State.currentDir = structure

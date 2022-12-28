@@ -95,19 +95,25 @@ consoleElement.addEventListener('input', (e) => {
       current[current.length - 1] === '/' ||
       current[current.length - 1] === ' '
     ) {
-      const { cd, structure } = checkDir(current.split('.. ')[1])
+      const {
+        cd: { size, filename, dir, ...cd },
+        structure,
+      } = checkDir(current.split('.. ')[1])
       const fragment = document.createDocumentFragment()
       delete cd['']
+      // delete cd['size']
+      // delete cd['filename']
+      // delete cd['dir']
       if (Object.keys(cd).length) {
         for (const f in cd) {
           const option = document.createElement('button')
-          option.textContent = f
+          const file = cd[f]
+          option.textContent = ` ${file.filename} | size: ${(
+            file.size / 1024
+          ).toFixed(1)} kb type: ${file.dir ? 'dir' : 'file'}`
           option.addEventListener('click', () => {
-            if (f.split('.').length > 1) {
-              consoleElement.value = `. ${structure.join('/')}${f}`
-            } else {
-              consoleElement.value = `.. ${structure.join('/')}${f}`
-            }
+            if (file.dir) consoleElement.value = `.. ${structure.join('/')}${f}`
+            else consoleElement.value = `. ${structure.join('/')}${f}`
             option.parentNode.removeChild(option)
             autoComplete.style.display = 'none'
             autoComplete.innerHTML = ''
