@@ -19,23 +19,13 @@ export const autoComplete = document.getElementById('autocomplete-container')
 export const applicationContainer = document.getElementById(
   'application-container'
 )
-
 export const compositionContainer = document.getElementById(
   'composition-container'
 )
 export const editorResizerElement = document.getElementById('editor-resizer')
 export const consoleResizerElement = document.getElementById('console-resizer')
-
 export const consoleEditor = CodeMirror(popupContainer)
-
 droneButton.addEventListener('click', () => execute({ value: '_LOG' }))
-// appButton.addEventListener('click', () => {
-//   execute({ value: 'EXEC' })
-// })
-// formatterButton.addEventListener('click', () => {
-//   execute({ value: 'PRETTY' })
-// })
-// keyButton.addEventListener('click', () => execute({ value: 'LIST' }))
 export const editor = CodeMirror(editorContainer, {})
 editorContainer.addEventListener(
   'click',
@@ -49,14 +39,13 @@ document.addEventListener('keydown', (e) => {
     e.stopPropagation()
     popupContainer.style.display = 'none'
     consoleElement.value = ''
-    // const value = js_beautify(editor.getValue(), State.settings.beautify)
-    // editor.setValue(value)
-    // editor.getSelection() ? execute({ value: '_LOG' }) : run()
     execute({ value: 'SAVE' })
   } else if (e.key === 'Enter') {
     if (activeElement === consoleElement) {
       execute(consoleElement)
     }
+  } else if (e.key === 'ArrowUp') {
+    consoleElement.value = State.lastSelectedFile ?? '_entry.js'
   } else if (e.key === 'Escape') {
     e.preventDefault()
     e.stopPropagation()
@@ -72,7 +61,6 @@ window.addEventListener('resize', () => {
   const width = bouds.width
   const height = bouds.height
   editor.setSize(width - 10, height - 60)
-  // editor.setSize(width, height - 70)
   if (popupContainer.style.display === 'block') {
     consoleEditor.setSize(width - 2, height / 3)
   }
@@ -108,9 +96,8 @@ consoleElement.addEventListener('input', (e) => {
         for (const f in cd) {
           const option = document.createElement('button')
           const file = cd[f]
-          option.textContent = ` ${file.filename} | size: ${(
-            file.size / 1024
-          ).toFixed(1)} kb type: ${file.dir ? 'dir' : 'file'}`
+          option.textContent = `${file.dir ? '.. ' : '. '} ${file.filename}`
+          option.title = `size: ${(file.size / 1024).toFixed(1)} kb`
           option.addEventListener('click', () => {
             if (file.dir) consoleElement.value = `.. ${structure.join('/')}${f}`
             else consoleElement.value = `. ${structure.join('/')}${f}`

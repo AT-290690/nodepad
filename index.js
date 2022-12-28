@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 8181
 const MINUTES = 60
 const directoryName = './public'
 const types = {
+  md: 'application/text',
   ttf: 'application/x-font-ttf',
   otf: 'application/x-font-otf',
   wasm: 'application/wasm',

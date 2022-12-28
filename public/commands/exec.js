@@ -18,6 +18,7 @@ import {
   API,
   matchDiff,
   checkDir,
+  rmDir,
 } from './utils.js'
 
 export const execute = async (CONSOLE) => {
@@ -128,11 +129,12 @@ export const execute = async (CONSOLE) => {
         .then((data) => {
           consoleElement.value = ''
           State.dir = data
-          State.fileTree = { ['']: Object.create(null) }
+          State.fileTree = {
+            ['']: { size: 0, filename: 'root', type: 'dir' },
+          }
           consoleElement.setAttribute('placeholder', `>_`)
           State.lastSelectedFile = null
           State.cache = ''
-          State.fileTree = { ['']: Object.create(null) }
         })
       break
     case 'LIST':
@@ -156,7 +158,9 @@ export const execute = async (CONSOLE) => {
         const files = await response.json()
         const { cd } = checkDir(sub)
         autoComplete.innerHTML = ''
-        files.forEach((file) => (cd[file.filename] = file))
+        files.forEach((file) => {
+          cd[file.filename] = file
+        })
         consoleElement.dispatchEvent(new KeyboardEvent('input'))
       }
       break
@@ -297,26 +301,25 @@ export const execute = async (CONSOLE) => {
       break
     case 'DELETE':
     case '-':
-      fetch(
-        `${API}del?dir=${State.dir}&filename=${
-          PARAMS[0] ?? State.lastSelectedFile
-        }`,
-        {
+      {
+        const filename = PARAMS[0] ?? State.lastSelectedFile
+        fetch(`${API}del?dir=${State.dir}&filename=${filename}`, {
           method: 'DELETE',
           'Content-Type': 'application/json',
           credentials: 'same-origin',
-        }
-      )
-        .then(() => {
-          droneIntel(xIcon)
         })
-        .finally(() => {
-          editor.setValue('')
-          consoleElement.value = ''
-          consoleElement.setAttribute('placeholder', `>_`)
-          State.lastSelectedFile = null
-          State.cache = ''
-        })
+          .then(() => {
+            droneIntel(xIcon)
+          })
+          .finally(() => {
+            editor.setValue('')
+            consoleElement.value = ''
+            consoleElement.setAttribute('placeholder', `>_`)
+            State.lastSelectedFile = null
+            State.cache = ''
+            rmDir(filename)
+          })
+      }
       break
 
     case 'HELP':

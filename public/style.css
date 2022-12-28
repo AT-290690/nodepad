@@ -328,7 +328,7 @@ input:focus {
   border: none;
   text-align: left;
   padding: 8px;
-  cursor: copy;
+  cursor: crosshair;
 }
 .fs-autocomplete-option:hover {
   background-color: var(--comment);

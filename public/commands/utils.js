@@ -87,7 +87,8 @@ globalThis._logger = (disable = 0) => {
     popup.setValue(
       `${current ? current : ''}${
         comment
-          ? comment
+          ? '\n' +
+            comment
               .split('\n')
               .map((x) => `// ${x}`)
               .join('\n')
@@ -197,5 +198,16 @@ export const checkDir = (path) => {
       break
     }
   }
+  return { structure, cd }
+}
+export const rmDir = (path) => {
+  let cd = State.fileTree
+  const structure = path.split('/')
+  const directories = structure.filter(Boolean)
+  const last = directories.pop()
+  for (const dir of directories) {
+    if (dir in cd) cd = cd[dir]
+  }
+  delete cd[last]
   return { structure, cd }
 }
