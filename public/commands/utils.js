@@ -47,7 +47,6 @@ export const State = {
   cache: '',
   settings: {},
   fileTree: { ['']: Object.create(null) },
-  // currentDir: [''],
 }
 
 export const droneIntel = (icon) => {
@@ -203,10 +202,6 @@ export const checkDir = (path) => {
   for (const dir of directories) {
     if (dir in cd) cd = cd[dir]
     else {
-      // const str = consoleElement.value.split('/')
-      // str.pop()
-      // str.pop()
-      // consoleElement.value = str.join('/')
       autoComplete.innerHTML = ''
       autoComplete.style.display = 'none'
       break

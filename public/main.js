@@ -91,25 +91,33 @@ consoleElement.addEventListener('input', (e) => {
   if (current[0] === '.' && current[1] === '.') {
     autoComplete.style.display = 'none'
     autoComplete.innerHTML = ''
-    if (current[current.length - 1] === '/') {
-      autoComplete.style.display = 'grid'
+    if (
+      current[current.length - 1] === '/' ||
+      current[current.length - 1] === ' '
+    ) {
       const { cd, structure } = checkDir(current.split('.. ')[1])
-      for (const f in cd) {
-        const option = document.createElement('button')
-        option.textContent = f
-        option.addEventListener('click', () => {
-          if (f.split('.').length > 1) {
-            consoleElement.value = `. ${structure.join('/')}${f}`
-          } else {
-            consoleElement.value = `.. ${structure.join('/')}${f}`
-          }
-          option.parentNode.removeChild(option)
-          autoComplete.style.display = 'none'
-          autoComplete.innerHTML = ''
-          consoleElement.focus()
-        })
-        option.classList.add('fs-autocomplete-option')
-        autoComplete.appendChild(option)
+      const fragment = document.createDocumentFragment()
+      delete cd['']
+      if (Object.keys(cd).length) {
+        for (const f in cd) {
+          const option = document.createElement('button')
+          option.textContent = f
+          option.addEventListener('click', () => {
+            if (f.split('.').length > 1) {
+              consoleElement.value = `. ${structure.join('/')}${f}`
+            } else {
+              consoleElement.value = `.. ${structure.join('/')}${f}`
+            }
+            option.parentNode.removeChild(option)
+            autoComplete.style.display = 'none'
+            autoComplete.innerHTML = ''
+            consoleElement.focus()
+          })
+          option.classList.add('fs-autocomplete-option')
+          fragment.appendChild(option)
+        }
+        autoComplete.style.display = 'grid'
+        autoComplete.appendChild(fragment)
       }
     }
   }

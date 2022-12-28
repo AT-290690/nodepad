@@ -44,6 +44,7 @@ export const execute = async (CONSOLE) => {
         consoleElement.setAttribute('placeholder', `>_`)
         State.lastSelectedFile = null
         State.cache = ''
+        State.fileTree = { ['']: Object.create(null) }
       })
       break
     case 'RUN':
@@ -127,6 +128,11 @@ export const execute = async (CONSOLE) => {
         .then((data) => {
           consoleElement.value = ''
           State.dir = data
+          State.fileTree = { ['']: Object.create(null) }
+          consoleElement.setAttribute('placeholder', `>_`)
+          State.lastSelectedFile = null
+          State.cache = ''
+          State.fileTree = { ['']: Object.create(null) }
         })
       break
     case 'LIST':
@@ -150,7 +156,6 @@ export const execute = async (CONSOLE) => {
         const files = await response.json()
         const { cd } = changeDir(sub)
         autoComplete.innerHTML = ''
-        // autoComplete.style.display = 'none'
         files.forEach((file) => (cd[file] = Object.create(null)))
         consoleElement.dispatchEvent(new KeyboardEvent('input'))
       }
@@ -175,7 +180,6 @@ export const execute = async (CONSOLE) => {
         const files = await response.json()
         const { cd } = changeDir(sub)
         autoComplete.innerHTML = ''
-        autoComplete.style.display = 'grid'
         exe(
           `const __debug_log = _print();
       _print()('${State.dir}/${sub}');

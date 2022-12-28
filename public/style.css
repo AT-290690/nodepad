@@ -326,14 +326,14 @@ input:focus {
   color: var(--color-primary);
   border: none;
   text-align: left;
-  padding: 5px 10px;
+  padding: 8px;
 }
 .fs-autocomplete-option:hover {
   background-color: var(--comment);
 }
 #autocomplete-container {
   overflow: scroll;
-  max-height: 200px;
+  max-height: 162px;
   display: grid;
   position: absolute;
   top: 55px;
