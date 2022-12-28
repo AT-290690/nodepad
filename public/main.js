@@ -1,6 +1,6 @@
 import { CodeMirror } from './libs/editor/editor.bundle.js'
 import { execute } from './commands/exec.js'
-import { API, run, State } from './commands/utils.js'
+import { API, checkDir, run, State } from './commands/utils.js'
 export const consoleElement = document.getElementById('console')
 export const editorContainer = document.getElementById('editor-container')
 export const mainContainer = document.getElementById('main-container')
@@ -15,6 +15,7 @@ export const formatterIcon = document.getElementById('formatter-drone-icon')
 export const keyIcon = document.getElementById('key-drone-icon')
 export const xIcon = document.getElementById('x-drone-icon')
 export const popupContainer = document.getElementById('popup-container')
+export const autoComplete = document.getElementById('autocomplete-container')
 export const applicationContainer = document.getElementById(
   'application-container'
 )
@@ -61,6 +62,7 @@ document.addEventListener('keydown', (e) => {
     e.stopPropagation()
     popupContainer.style.display = 'none'
     applicationContainer.style.display = 'none'
+    autoComplete.innerHTML = ''
   }
 })
 State.activeWindow = editorContainer
@@ -83,6 +85,35 @@ window.addEventListener(
   (e) =>
     (e.returnValue = `Before leaving make sure you save your work (if it's worth)`)
 )
+
+consoleElement.addEventListener('input', (e) => {
+  const current = e.currentTarget.value
+  if (current[0] === '.' && current[1] === '.') {
+    autoComplete.style.display = 'none'
+    autoComplete.innerHTML = ''
+    if (current[current.length - 1] === '/') {
+      autoComplete.style.display = 'grid'
+      const { cd, structure } = checkDir(current.split('.. ')[1])
+      for (const f in cd) {
+        const option = document.createElement('button')
+        option.textContent = f
+        option.addEventListener('click', () => {
+          if (f.split('.').length > 1) {
+            consoleElement.value = `. ${structure.join('/')}${f}`
+          } else {
+            consoleElement.value = `.. ${structure.join('/')}${f}`
+          }
+          option.parentNode.removeChild(option)
+          autoComplete.style.display = 'none'
+          autoComplete.innerHTML = ''
+          consoleElement.focus()
+        })
+        option.classList.add('fs-autocomplete-option')
+        autoComplete.appendChild(option)
+      }
+    }
+  }
+})
 const unloadSupportHandler = () => {
   if (unloadSupportHandler._hasUnloaded) return
   unloadSupportHandler._hasUnloaded = true

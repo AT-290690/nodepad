@@ -1,4 +1,5 @@
 import {
+  autoComplete,
   consoleEditor,
   consoleElement,
   droneButton,
@@ -16,6 +17,7 @@ import {
   exe,
   API,
   matchDiff,
+  changeDir,
 } from './utils.js'
 
 export const execute = async (CONSOLE) => {
@@ -130,12 +132,10 @@ export const execute = async (CONSOLE) => {
     case 'LIST':
     case '..':
       {
-        const response = await fetch(
-          `${API}ls?dir=${State.dir}&sub=${PARAMS[0] ?? ''}`,
-          {
-            credentials: 'same-origin',
-          }
-        )
+        const sub = PARAMS[0] ?? ''
+        const response = await fetch(`${API}ls?dir=${State.dir}&sub=${sub}`, {
+          credentials: 'same-origin',
+        })
         if (response.status !== 200) {
           droneIntel(errorIcon)
           consoleElement.classList.remove('info_line')
@@ -148,10 +148,43 @@ export const execute = async (CONSOLE) => {
           break
         }
         const files = await response.json()
+        const { cd } = changeDir(sub)
+        autoComplete.innerHTML = ''
+        // autoComplete.style.display = 'none'
+        files.forEach((file) => (cd[file] = Object.create(null)))
+        consoleElement.dispatchEvent(new KeyboardEvent('input'))
+      }
+      break
+    case 'LS':
+      {
+        const sub = PARAMS[0] ?? ''
+        const response = await fetch(`${API}ls?dir=${State.dir}&sub=${sub}`, {
+          credentials: 'same-origin',
+        })
+        if (response.status !== 200) {
+          droneIntel(errorIcon)
+          consoleElement.classList.remove('info_line')
+          consoleElement.classList.add('error_line')
+          consoleElement.value = `${response.status}: ${
+            response.statusText ?? 'Unauthorized'
+          }`
+          droneButton.classList.remove('shake')
+          droneButton.classList.add('shake')
+          break
+        }
+        const files = await response.json()
+        const { cd } = changeDir(sub)
+        autoComplete.innerHTML = ''
+        autoComplete.style.display = 'grid'
         exe(
-          `const __debug_log = _print(); 
-        _print()('${State.dir}/${PARAMS[0] ?? ''}'); 
-        ${files.map((file) => `__debug_log("· ${file}")`).join('\n')}`
+          `const __debug_log = _print();
+      _print()('${State.dir}/${sub}');
+      ${files
+        .map((file) => {
+          cd[file] = Object.create(null)
+          return `__debug_log(". ${file}")`
+        })
+        .join('\n')}`
         )
       }
       break
@@ -165,7 +198,6 @@ export const execute = async (CONSOLE) => {
       break
     case 'LOAD':
     case '.':
-    case '·':
       {
         const filename = PARAMS[0] ?? State.lastSelectedFile ?? '_entry.js'
         const response = await fetch(`${API}portals/${State.dir}/${filename}`, {
@@ -186,7 +218,7 @@ export const execute = async (CONSOLE) => {
         State.lastSelectedFile = filename
         droneIntel(keyIcon)
         consoleElement.value = ''
-        consoleElement.setAttribute('placeholder', `· ${filename}`)
+        consoleElement.setAttribute('placeholder', `. ${filename}`)
       }
       break
     case 'DUMP':
@@ -233,7 +265,11 @@ export const execute = async (CONSOLE) => {
           droneButton.classList.remove('shake')
           State.cache = source
           State.lastSelectedFile = filename
-          consoleElement.setAttribute('placeholder', `· ${filename}`)
+          changeDir(filename)
+          // const { structure } = changeDir(filename)
+          // structure.pop()
+          // State.currentDir = structure
+          consoleElement.setAttribute('placeholder', `. ${filename}`)
         })
       }
       break

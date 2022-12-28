@@ -320,3 +320,26 @@ input:focus {
   display: none;
   border-left: solid 1px var(--border);
 }
+
+.fs-autocomplete-option {
+  background-color: var(--background-primary);
+  color: var(--color-primary);
+  border: none;
+  text-align: left;
+  padding: 5px 10px;
+}
+.fs-autocomplete-option:hover {
+  background-color: var(--comment);
+}
+#autocomplete-container {
+  overflow: scroll;
+  max-height: 200px;
+  display: grid;
+  position: absolute;
+  top: 55px;
+  left: 70px;
+  z-index: 1000;
+  border: none;
+  display: none;
+  border: solid 1px var(--border);
+}

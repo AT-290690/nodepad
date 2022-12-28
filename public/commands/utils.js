@@ -7,6 +7,7 @@ import {
   consoleEditor,
   applicationContainer,
   execIcon,
+  autoComplete,
 } from '../main.js'
 export const print = function (...values) {
   values.forEach(
@@ -45,6 +46,8 @@ export const State = {
   input: '',
   cache: '',
   settings: {},
+  fileTree: { ['']: Object.create(null) },
+  // currentDir: [''],
 }
 
 export const droneIntel = (icon) => {
@@ -181,4 +184,33 @@ export const matchDiff = (a, b) => {
     diff.push([diff_obj[change][0], diff_obj[change][1]])
   }
   return diff_obj
+}
+export const changeDir = (path) => {
+  let cd = State.fileTree
+  const structure = path.split('/').map((d) => d.trim())
+  structure.filter(Boolean).forEach((dir) => {
+    if (!(dir in cd)) {
+      cd[dir] = Object.create(null)
+    }
+    cd = cd[dir]
+  })
+  return { structure, cd }
+}
+export const checkDir = (path) => {
+  let cd = State.fileTree
+  const structure = path.split('/')
+  const directories = structure.filter(Boolean)
+  for (const dir of directories) {
+    if (dir in cd) cd = cd[dir]
+    else {
+      // const str = consoleElement.value.split('/')
+      // str.pop()
+      // str.pop()
+      // consoleElement.value = str.join('/')
+      autoComplete.innerHTML = ''
+      autoComplete.style.display = 'none'
+      break
+    }
+  }
+  return { structure, cd }
 }
