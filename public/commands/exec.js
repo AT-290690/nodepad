@@ -291,7 +291,9 @@ export const execute = async (CONSOLE) => {
       break
     case 'WINDOW':
     case '#':
-      if (PARAMS.length) _app(PARAMS[0]).style.background = PARAMS[1] ?? 'white'
+      _app(
+        `${API}portals/${State.dir}/${PARAMS[0] ?? 'index.html'}`
+      ).style.background = PARAMS[1] ?? 'white'
       break
     case 'SHARE':
     case '@':

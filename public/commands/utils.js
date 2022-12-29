@@ -10,9 +10,7 @@ import {
   autoComplete,
 } from '../main.js'
 export const print = function (...values) {
-  values.forEach(
-    (x) => (consoleElement.value += `${JSON.stringify(x) ?? undefined}`)
-  )
+  values.forEach((x) => (consoleElement.value += `${JSON.stringify(x)}`))
   return values
 }
 export const API = location.protocol + '//' + location.host + '/'
