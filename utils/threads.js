@@ -14,7 +14,7 @@ class ThreadPool {
   send(message) {
     const index = (this.#counter = (this.#counter + 1) % this.pool.length)
     if (!this.pool[index].connected) {
-      fork.kill()
+      this.pool[index].kill()
       this.pool[index] = this.spawn()
     }
     this.pool[index].send(message)
