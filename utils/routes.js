@@ -226,7 +226,7 @@ router['DELETE /empty'] = async (req, res, { query, cookie }) => {
   }
 }
 router['GET *'] = async (req, res, { pathname }) => {
-  const extension = path.extname(req.url).slice(1)
+  const extension = path.extname(pathname).slice(1)
   const type = extension ? types[extension] : types.html
   const supportedExtension = Boolean(type)
 
